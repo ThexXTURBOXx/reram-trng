@@ -1,0 +1,12 @@
+
+build/
+
+boot/
+
+.idea/
+
+.vscode/
+
+*.bin
+
+*.img
