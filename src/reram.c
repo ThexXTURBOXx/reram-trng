@@ -3,6 +3,7 @@
 #include "gpio.h"
 #include "printf.h"
 #include "spi.h"
+#include "reram_defines.h"
 
 void set_write_enable() {
     gpio_clear_pin(25);
@@ -79,8 +80,8 @@ u64 wip_polling(u64 timeout) {
 }
 
 u64 wip_polling_cycles() {
+    MemoryStatusRegister statusRegister;
     for (u64 cycles = 1;; cycles++) {
-        MemoryStatusRegister statusRegister;
         read_status_register(&statusRegister);
         if (!statusRegister.write_in_progress_bit) {
             return cycles;
@@ -89,7 +90,11 @@ u64 wip_polling_cycles() {
 }
 
 void reram_write(const u32 adr, u8 value) {
+#if RERAM_ADESTO_RM25C512C_LTAI_T
     u8 write_data[] = {ReRAM_WR, ((adr >> 8) & 0xFF), ((adr >> 0) & 0xFF), value};
+#elif RERAM_FUJITSU_MB85AS4MTPF_G_BCERE1
+    u8 write_data[] = {ReRAM_WR, ((adr >> 16) & 0xFF), ((adr >> 8) & 0xFF), ((adr >> 0) & 0xFF), value};
+#endif
     set_write_enable_latch(false);
     set_write_enable();
     spi_send(0, write_data, sizeof(write_data));
@@ -97,7 +102,11 @@ void reram_write(const u32 adr, u8 value) {
 }
 
 void reram_read(const u32 adr, u8 *ret) {
+#if RERAM_ADESTO_RM25C512C_LTAI_T
     u8 read_data[] = {ReRAM_READ, ((adr >> 8) & 0xFF), ((adr >> 0) & 0xFF)};
+#elif RERAM_FUJITSU_MB85AS4MTPF_G_BCERE1
+    u8 read_data[] = {ReRAM_READ, ((adr >> 16) & 0xFF), ((adr >> 8) & 0xFF), ((adr >> 0) & 0xFF)};
+#endif
     u8 ret_val;
     spi_send_recv(0, read_data, sizeof(read_data), &ret_val, sizeof(ret_val));
     *ret = ret_val;
