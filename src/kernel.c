@@ -5,7 +5,7 @@
 #include "gpio.h"
 #include "timer.h"
 #include "spi.h"
-#include "reram.h"
+#include "spi_memory.h"
 
 void putc(void *p, char c) {
     if (c == '\n') {
@@ -17,10 +17,10 @@ void putc(void *p, char c) {
 u32 get_el();
 
 void test_adr(const uint32_t adr) {
-    reram_write(adr, 0xaa);
+    mem_write(adr, 0xaa);
     wip_polling(0);
     uint8_t value = 0;
-    reram_read(adr, &value);
+    mem_read(adr, &value);
     printf("Read: %d -> 0x%x\n", adr, value);
 }
 
@@ -32,13 +32,13 @@ int adesto_test() {
             for (int addrCtr = 0; addrCtr < 512; addrCtr++) {
                 //for (int try = 0; try < 512; try++) {
                 // Write first value
-                reram_write(addrCtr, num1);
+                mem_write(addrCtr, num1);
 
                 // Wait until the WEL latch turns reset
                 wip_polling_cycles();
 
                 // Overwrite value
-                reram_write(addrCtr, num2);
+                mem_write(addrCtr, num2);
 
                 // Measure write latency
                 u64 write_latency = wip_polling_cycles();
@@ -92,7 +92,7 @@ void kernel_main() {
             test_adr(i);
             timer_sleep(100);
         }*/
-        /*reram_write(0, 0xaa);
+        /*mem_write(0, 0xaa);
         for (int i = 0; i < 1024; i++) {
             MemoryStatusRegister reg;
             read_status_register(&reg);

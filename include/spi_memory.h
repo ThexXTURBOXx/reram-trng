@@ -42,6 +42,6 @@ u64 wip_polling(u64 timeout);
 
 u64 wip_polling_cycles();
 
-void reram_write(u32 adr, u8 value);
+void mem_write(u32 adr, u8 value);
 
-void reram_read(u32 adr, u8 *ret);
+void mem_read(u32 adr, u8 *ret);

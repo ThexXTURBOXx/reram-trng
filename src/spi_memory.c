@@ -1,9 +1,9 @@
 #include "timer.h"
-#include "reram.h"
+#include "spi_memory.h"
 #include "gpio.h"
 #include "printf.h"
 #include "spi.h"
-#include "reram_defines.h"
+#include "memory_defines.h"
 
 void set_write_enable() {
     gpio_clear_pin(25);
@@ -32,7 +32,7 @@ MemoryStatusRegister parse_status_register(u8 statusRegister) {
     return (MemoryStatusRegister) {(statusRegister & 128) >> 7,
                                    (statusRegister & 64) >> 6,
                                    (statusRegister & 32) >> 5,
-                                   (statusRegister & 12) >> 3,
+                                   (statusRegister & 12) >> 2,
                                    (statusRegister & 2) >> 1,
                                    (statusRegister & 1)};
 }
@@ -89,10 +89,10 @@ u64 wip_polling_cycles() {
     }
 }
 
-void reram_write(const u32 adr, u8 value) {
-#if RERAM_ADESTO_RM25C512C_LTAI_T
+void mem_write(const u32 adr, u8 value) {
+#if MEM_ADR_SEND == 2
     u8 write_data[] = {ReRAM_WR, ((adr >> 8) & 0xFF), ((adr >> 0) & 0xFF), value};
-#elif RERAM_FUJITSU_MB85AS4MTPF_G_BCERE1
+#elif MEM_ADR_SEND == 4
     u8 write_data[] = {ReRAM_WR, ((adr >> 16) & 0xFF), ((adr >> 8) & 0xFF), ((adr >> 0) & 0xFF), value};
 #endif
     set_write_enable_latch(false);
@@ -101,10 +101,10 @@ void reram_write(const u32 adr, u8 value) {
     reset_write_enable();
 }
 
-void reram_read(const u32 adr, u8 *ret) {
-#if RERAM_ADESTO_RM25C512C_LTAI_T
+void mem_read(const u32 adr, u8 *ret) {
+#if MEM_ADR_SEND == 2
     u8 read_data[] = {ReRAM_READ, ((adr >> 8) & 0xFF), ((adr >> 0) & 0xFF)};
-#elif RERAM_FUJITSU_MB85AS4MTPF_G_BCERE1
+#elif MEM_ADR_SEND == 4
     u8 read_data[] = {ReRAM_READ, ((adr >> 16) & 0xFF), ((adr >> 8) & 0xFF), ((adr >> 0) & 0xFF)};
 #endif
     u8 ret_val;
