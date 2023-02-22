@@ -50,6 +50,14 @@ u64 timer_get_ticks() {
  * Sleep some milliseconds.
  */
 void timer_sleep(u32 ms) {
-    u64 start = timer_get_ticks();
-    while (timer_get_ticks() < start + (ms * 1000)) {}
+    u64 end = timer_get_ticks() + (ms * 1000);
+    while (timer_get_ticks() < end) {}
+}
+
+u64 time_from(u64 start) {
+    return timer_get_ticks() - start;
+}
+
+u64 ticks_to_ms(u64 ticks) {
+    return ticks / 1000;
 }

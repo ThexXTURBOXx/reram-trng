@@ -44,4 +44,6 @@ u64 wip_polling_cycles();
 
 void mem_write(u32 adr, u8 value);
 
+void mem_write_values(u32 adr, u8 valuesLen, const u8* values);
+
 void mem_read(u32 adr, u8 *ret);

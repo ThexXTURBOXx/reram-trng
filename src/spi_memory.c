@@ -64,7 +64,7 @@ u64 wip_polling(u64 timeout) {
     u64 startTS = timer_get_ticks();
 
     do {
-        cycles++;
+        ++cycles;
         MemoryStatusRegister statusRegister;
         read_status_register(&statusRegister);
 
@@ -81,20 +81,40 @@ u64 wip_polling(u64 timeout) {
 
 u64 wip_polling_cycles() {
     MemoryStatusRegister statusRegister;
-    for (u64 cycles = 1;; cycles++) {
+    for (u64 cycles = 1;; ++cycles) {
         read_status_register(&statusRegister);
-        if (!statusRegister.write_in_progress_bit) {
-            return cycles;
-        }
+        if (!statusRegister.write_in_progress_bit) return cycles;
     }
 }
 
 void mem_write(const u32 adr, u8 value) {
 #if MEM_ADR_SEND == 2
     u8 write_data[] = {ReRAM_WR, ((adr >> 8) & 0xFF), ((adr >> 0) & 0xFF), value};
-#elif MEM_ADR_SEND == 4
+#elif MEM_ADR_SEND == 3
     u8 write_data[] = {ReRAM_WR, ((adr >> 16) & 0xFF), ((adr >> 8) & 0xFF), ((adr >> 0) & 0xFF), value};
 #endif
+    set_write_enable_latch(false);
+    set_write_enable();
+    spi_send(0, write_data, sizeof(write_data));
+    reset_write_enable();
+}
+
+void mem_write_values(u32 adr, u8 valuesLen, const u8 *values) {
+#if MEM_ADR_SEND == 2
+    u8 write_data[valuesLen + 3];
+    write_data[0] = ReRAM_WR;
+    write_data[1] = ((adr >> 8) & 0xFF);
+    write_data[2] = ((adr >> 0) & 0xFF);
+#elif MEM_ADR_SEND == 3
+    u8 write_data[valuesLen + 4];
+    write_data[0] = ReRAM_WR;
+    write_data[2] = ((adr >> 16) & 0xFF);
+    write_data[2] = ((adr >> 8) & 0xFF);
+    write_data[3] = ((adr >> 0) & 0xFF);
+#endif
+    for (int i = 0; i < valuesLen; i++) {
+        write_data[i + 1 + MEM_ADR_SEND] = values[i];
+    }
     set_write_enable_latch(false);
     set_write_enable();
     spi_send(0, write_data, sizeof(write_data));
@@ -104,7 +124,7 @@ void mem_write(const u32 adr, u8 value) {
 void mem_read(const u32 adr, u8 *ret) {
 #if MEM_ADR_SEND == 2
     u8 read_data[] = {ReRAM_READ, ((adr >> 8) & 0xFF), ((adr >> 0) & 0xFF)};
-#elif MEM_ADR_SEND == 4
+#elif MEM_ADR_SEND == 3
     u8 read_data[] = {ReRAM_READ, ((adr >> 16) & 0xFF), ((adr >> 8) & 0xFF), ((adr >> 0) & 0xFF)};
 #endif
     u8 ret_val;

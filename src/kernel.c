@@ -6,99 +6,175 @@
 #include "timer.h"
 #include "spi.h"
 #include "spi_memory.h"
+#include "rng.h"
 
 void putc(void *p, char c) {
-    if (c == '\n') {
-        uart_send('\r');
-    }
-    uart_send(c);
+  if (c=='\n') {
+    uart_send('\r');
+  }
+  uart_send(c);
 }
 
 u32 get_el();
 
 void test_adr(const uint32_t adr) {
-    mem_write(adr, 0xaa);
-    wip_polling(0);
-    uint8_t value = 0;
-    mem_read(adr, &value);
-    printf("Read: %d -> 0x%x\n", adr, value);
+  mem_write(adr, 0xaa);
+  wip_polling(0);
+  uint8_t value = 0;
+  mem_read(adr, &value);
+  printf("Read: %d -> 0x%x\n", adr, value);
 }
 
-int adesto_test() {
-    uint8_t num1 = 0, num2 = 0;
-    printf("From;To;Cell;WIP_Polling\n");
+int adesto_puf_test() {
+  uint8_t num1 = 0, num2 = 0;
+  printf("From;To;Cell;WIP_Polling\n");
+  do {
     do {
-        do {
-            for (int addrCtr = 0; addrCtr < 512; addrCtr++) {
-                //for (int try = 0; try < 512; try++) {
-                // Write first value
-                mem_write(addrCtr, num1);
+      for (int addrCtr = 0; addrCtr < 512; addrCtr++) {
+        //for (int try = 0; try < 512; try++) {
+        // Write first value
+        mem_write(addrCtr, num1);
 
-                // Wait until the WEL latch turns reset
-                wip_polling_cycles();
+        // Wait until the WEL latch turns reset
+        wip_polling_cycles();
 
-                // Overwrite value
-                mem_write(addrCtr, num2);
+        // Overwrite value
+        mem_write(addrCtr, num2);
 
-                // Measure write latency
-                u64 write_latency = wip_polling_cycles();
+        // Measure write latency
+        u64 write_latency = wip_polling_cycles();
 
-                printf("%d;%d;%d;%d\n", num1, num2, addrCtr, write_latency);
-                //}
-            }
-        } while (num2++ != 255);
-    } while (num1++ != 255);
-    return 0;
+        printf("%d;%d;%d;%d\n", num1, num2, addrCtr, write_latency);
+        //}
+      }
+    } while (num2++!=255);
+  } while (num1++!=255);
+  return 0;
+}
+
+int adesto_puf_test_bulk_write() {
+  uint8_t num1 = 0, num2 = 0;
+  printf("From;To;Cell;WIP_Polling\n");
+  do {
+    uint8_t num1Arr[128] = {[0 ... 127] = num1};
+    do {
+      uint8_t num2Arr[128] = {[0 ... 127] = num2};
+      for (int addrCtr = 0; addrCtr < 512; addrCtr++) {
+        //for (int try = 0; try < 512; try++) {
+        // Write first value
+        mem_write_values(addrCtr, 128, num1Arr);
+
+        // Wait until the WEL latch turns reset
+        wip_polling_cycles();
+
+        // Overwrite value
+        mem_write_values(addrCtr, 128, num2Arr);
+
+        // Measure write latency
+        u64 write_latency = wip_polling_cycles();
+
+        printf("%d;%d;%d;%d\n", num1, num2, addrCtr, write_latency);
+        //}
+      }
+    } while (num2++!=255);
+  } while (num1++!=255);
+  return 0;
+}
+
+u64 adesto_random_latency() {
+  // Use other RNG as seed
+  int addr = (int) rand(0, 512);
+  int num1 = (int) rand(0, 256);
+  int num2 = (int) rand(0, 256);
+
+  // Write first value
+  mem_write(addr, num1);
+
+  // Wait until the WEL latch turns reset
+  wip_polling_cycles();
+
+  // Overwrite value
+  mem_write(addr, num2);
+
+  // Measure write latency
+  u64 write_latency = wip_polling_cycles();
+
+  // This is the rather random latency
+  return write_latency;
+}
+
+bool adesto_random_bit() {
+  // Extract "random" LSB
+  return (bool) (adesto_random_latency() & 1);
+}
+
+void adesto_rng_test() {
+  int toGenerate = 387840; //8192;
+  int totalGenerated = 0;
+  u64 start = timer_get_ticks();
+  while (toGenerate) {
+    // Very basic implementation of von Neumann extractor
+    ++totalGenerated;
+    bool bit1 = adesto_random_bit();
+    bool bit2 = adesto_random_bit();
+    if (bit1==bit2) continue;
+    printf("%d", bit1);
+    --toGenerate;
+  }
+  printf("\n\nTime needed: %ld µs\n", time_from(start));
+  printf("Total bits generated: %d\n\n", 2 * totalGenerated);
 }
 
 void kernel_main() {
-    uart_init();
-    init_printf(0, putc);
-    printf("\nRaspberry PI Bare Metal OS Initializing...\n");
+  uart_init();
+  init_printf(0, putc);
+  printf("\nRaspberry PI Bare Metal OS Initializing...\n");
 
-    irq_init_vectors();
-    enable_interrupt_controller();
-    irq_enable();
-    timer_init();
+  irq_init_vectors();
+  enable_interrupt_controller();
+  irq_enable();
+  timer_init();
 
-#if RPI_VERSION == 3
+#if RPI_VERSION==3
 #if RPI_BPLUS
-    printf("\tBoard: Raspberry PI 3B+\n");
+  printf("\tBoard: Raspberry PI 3B+\n");
 #else
-    printf("\tBoard: Raspberry PI 3\n");
+  printf("\tBoard: Raspberry PI 3\n");
 #endif
-#elif RPI_VERSION == 4
-    printf("\tBoard: Raspberry PI 4\n");
+#elif RPI_VERSION==4
+  printf("\tBoard: Raspberry PI 4\n");
 #endif
 
-    printf("\nException Level: %d\n", get_el());
+  printf("\nException Level: %d\n", get_el());
 
-    printf("Sleeping 200 ms...\n");
-    timer_sleep(200);
+  printf("Sleeping 200 ms...\n");
+  timer_sleep(200);
 
-    printf("Initializing SPI...\n");
-    spi_init();
-    gpio_pin_set_func(25, GFOutput);
+  printf("Initializing SPI...\n");
+  spi_init();
+  gpio_pin_set_func(25, GFOutput);
 
-    printf("Testing Memory...\n");
+  printf("Testing Memory...\n");
 
-    adesto_test();
+  adesto_rng_test();
+  //for (int i = 0; i < 8192; ++i)
+  //  printf("%d\n", adesto_random_latency());
 
-    printf("Shutting down...\n");
+  printf("Shutting down...\n");
 
-    while (1) {
-        //uart_send(uart_recv());
-        /*for (uint32_t i = 0; i < 512; i++) {
-            test_adr(i);
-            timer_sleep(100);
-        }*/
-        /*mem_write(0, 0xaa);
-        for (int i = 0; i < 1024; i++) {
-            MemoryStatusRegister reg;
-            read_status_register(&reg);
-            printf("%d", reg.write_in_progress_bit);
-        }
-        printf("==========\n\n");
-        timer_sleep(2000);*/
+  while (1) {
+    //uart_send(uart_recv());
+    /*for (uint32_t i = 0; i < 512; i++) {
+        test_adr(i);
+        timer_sleep(100);
+    }*/
+    /*mem_write(0, 0xaa);
+    for (int i = 0; i < 1024; i++) {
+        MemoryStatusRegister reg;
+        read_status_register(&reg);
+        printf("%d", reg.write_in_progress_bit);
     }
+    printf("==========\n\n");
+    timer_sleep(2000);*/
+  }
 }
