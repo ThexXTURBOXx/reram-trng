@@ -109,7 +109,7 @@ bool adesto_random_bit() {
 }
 
 void adesto_rng_test() {
-  int toGenerate = 387840; //8192;
+  int toGenerate = 500000;
   int totalGenerated = 0;
   u64 start = timer_get_ticks();
   while (toGenerate) {
