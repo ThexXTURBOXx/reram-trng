@@ -4,12 +4,12 @@
 #include "common.h"
 
 struct Spi0Regs {
-    reg32 cs;
-    reg32 fifo;
-    reg32 clock;
-    reg32 data_length;
-    reg32 ltoh;
-    reg32 dc;
+  reg32 cs;
+  reg32 fifo;
+  reg32 clock;
+  reg32 data_length;
+  reg32 ltoh;
+  reg32 dc;
 };
 
 #define REGS_SPI0 ((struct Spi0Regs *)(PBASE + 0x00204000))

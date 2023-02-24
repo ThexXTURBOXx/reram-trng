@@ -9,7 +9,7 @@
 #include "rng.h"
 
 void putc(void *p, char c) {
-  if (c=='\n') {
+  if (c == '\n') {
     uart_send('\r');
   }
   uart_send(c);
@@ -47,8 +47,8 @@ int adesto_puf_test() {
         printf("%d;%d;%d;%d\n", num1, num2, addrCtr, write_latency);
         //}
       }
-    } while (num2++!=255);
-  } while (num1++!=255);
+    } while (num2++ != 255);
+  } while (num1++ != 255);
   return 0;
 }
 
@@ -76,8 +76,8 @@ int adesto_puf_test_bulk_write() {
         printf("%d;%d;%d;%d\n", num1, num2, addrCtr, write_latency);
         //}
       }
-    } while (num2++!=255);
-  } while (num1++!=255);
+    } while (num2++ != 255);
+  } while (num1++ != 255);
   return 0;
 }
 
@@ -117,7 +117,7 @@ void adesto_rng_test() {
     ++totalGenerated;
     bool bit1 = adesto_random_bit();
     bool bit2 = adesto_random_bit();
-    if (bit1==bit2) continue;
+    if (bit1 == bit2) continue;
     printf("%d", bit1);
     --toGenerate;
   }
@@ -135,13 +135,13 @@ void kernel_main() {
   irq_enable();
   timer_init();
 
-#if RPI_VERSION==3
+#if RPI_VERSION == 3
 #if RPI_BPLUS
   printf("\tBoard: Raspberry PI 3B+\n");
 #else
   printf("\tBoard: Raspberry PI 3\n");
 #endif
-#elif RPI_VERSION==4
+#elif RPI_VERSION == 4
   printf("\tBoard: Raspberry PI 4\n");
 #endif
 

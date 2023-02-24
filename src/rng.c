@@ -9,5 +9,5 @@ u64 rand(u64 min, u64 max) {
     *RNG_CTRL |= 1; // Enable
     while (!((*RNG_STATUS) >> 24)); // Wait until entropy good enough
   }
-  return ((((u64)(*RNG_DATA) << 32) | *RNG_DATA) % (max - min)) + min;
+  return ((((u64) (*RNG_DATA) << 32) | *RNG_DATA) % (max - min)) + min;
 }
