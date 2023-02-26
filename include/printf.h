@@ -81,6 +81,8 @@ regs Kusti, 23.10.2004
   (byte & 0x02 ? '1' : '0'), \
   (byte & 0x01 ? '1' : '0')
 
+#define PRINTF_LONG_SUPPORT
+
 void init_printf(void *putp, void (*putf)(void *, char));
 
 void tfp_printf(char *fmt, ...);
