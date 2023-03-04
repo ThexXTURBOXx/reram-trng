@@ -112,12 +112,19 @@ void adesto_rng_test() {
   int toGenerate = 500000;
   int totalGenerated = 0;
   u64 start = timer_get_ticks();
+  u64 blockStart = start;
+  int blockGenerated = toGenerate;
   while (toGenerate) {
     // Very basic implementation of von Neumann extractor
     ++totalGenerated;
     bool bit1 = adesto_random_bit();
     bool bit2 = adesto_random_bit();
     if (bit1 == bit2) continue;
+    if (toGenerate % 10000 == 0 && totalGenerated != 0) {
+        printf("\n%ld µs, %d\n", time_from(blockStart), totalGenerated - blockGenerated);
+        blockStart = timer_get_ticks();
+        blockGenerated = totalGenerated;
+    }
     printf("%d", bit1);
     --toGenerate;
   }
