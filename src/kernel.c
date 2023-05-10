@@ -26,7 +26,7 @@ void test_adr(const uint32_t adr) {
   printf("Read: %d -> 0x%x\n", adr, value);
 }
 
-int adesto_puf_test() {
+int write_latency_puf_test() {
   uint8_t num1 = 0, num2 = 0;
   printf("From;To;Cell;WIP_Polling\n");
   do {
@@ -53,7 +53,7 @@ int adesto_puf_test() {
   return 0;
 }
 
-int adesto_puf_test_bulk_write() {
+int write_latency_puf_test_bulk_write() {
   uint8_t num1 = 0, num2 = 0;
   printf("From;To;Cell;WIP_Polling\n");
   do {
@@ -104,12 +104,12 @@ u64 adesto_random_latency() {
   return write_latency;
 }
 
-bool adesto_random_bit() {
+bool write_latency_random_bit() {
   // Extract "random" LSB
-  return (bool) (adesto_random_latency() & 1);
+  return (bool) (random_write_latency() & 1);
 }
 
-void adesto_rng_test() {
+void write_latency_rng_test() {
   int toGenerate = 500000;
   int totalGenerated = 0;
   u64 start = timer_get_ticks();
@@ -118,8 +118,8 @@ void adesto_rng_test() {
   while (toGenerate) {
     // Very basic implementation of von Neumann extractor
     ++totalGenerated;
-    bool bit1 = adesto_random_bit();
-    bool bit2 = adesto_random_bit();
+    bool bit1 = write_latency_random_bit();
+    bool bit2 = write_latency_random_bit();
     if (bit1 == bit2) continue;
     // For more debug information:
     /*if (toGenerate % 10000 == 0 && totalGenerated != 0) {
@@ -167,9 +167,9 @@ void kernel_main() {
 
   printf("Testing Memory...\n");
 
-  adesto_rng_test();
+  write_latency_rng_test();
   //for (int i = 0; i < 8192; ++i)
-  //  printf("%d\n", adesto_random_latency());
+  //  printf("%d\n", random_write_latency());
 
   printf("Shutting down...\n");
 
