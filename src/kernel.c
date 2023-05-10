@@ -3,6 +3,7 @@
 #include "printf.h"
 #include "irq.h"
 #include "gpio.h"
+#include "memory_defines.h"
 #include "timer.h"
 #include "spi.h"
 #include "spi_memory.h"
@@ -120,11 +121,12 @@ void adesto_rng_test() {
     bool bit1 = adesto_random_bit();
     bool bit2 = adesto_random_bit();
     if (bit1 == bit2) continue;
-    if (toGenerate % 10000 == 0 && totalGenerated != 0) {
-        printf("\n%ld µs, %d\n", time_from(blockStart), totalGenerated - blockGenerated);
-        blockStart = timer_get_ticks();
-        blockGenerated = totalGenerated;
-    }
+    // For more debug information:
+    /*if (toGenerate % 10000 == 0 && totalGenerated != 0) {
+      printf("\n%ld µs, %d\n", time_from(blockStart), totalGenerated - blockGenerated);
+      blockStart = timer_get_ticks();
+      blockGenerated = totalGenerated;
+    }*/
     printf("%d", bit1);
     --toGenerate;
   }
@@ -160,6 +162,8 @@ void kernel_main() {
   printf("Initializing SPI...\n");
   spi_init();
   gpio_pin_set_func(25, GFOutput);
+
+  printf("Expecting Memory module %s\n", MEM_NAME);
 
   printf("Testing Memory...\n");
 
