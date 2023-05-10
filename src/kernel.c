@@ -82,7 +82,35 @@ int write_latency_puf_test_bulk_write() {
   return 0;
 }
 
-u64 adesto_random_latency() {
+void rowhammer_test() {
+  // Initialise all values to 0
+  for (int i = 0; i < 512; ++i) {
+    mem_write(i, 0);
+    // Wait until the WEL latch turns reset
+    wip_polling_cycles();
+  }
+
+  printf("\n");
+  // Address to test
+  int addr = 169;
+  for (int i = 0; i < 1000000; ++i) {
+    if (i % 10000 == 0) printf("\r%d", i);
+    // Write random value
+    mem_write(addr, (int) rand(0, 256));
+    // Wait until the WEL latch turns reset
+    //wip_polling_cycles();
+  }
+  printf("\n");
+
+  uint8_t value;
+  for (int i = 0; i < 512; ++i) {
+    // Read out all values
+    mem_read(i, &value);
+    printf("%d: 0x%x\n", i, value);
+  }
+}
+
+u64 random_write_latency() {
   // Use other RNG as seed
   int addr = (int) rand(0, 512);
   int num1 = (int) rand(0, 256);
