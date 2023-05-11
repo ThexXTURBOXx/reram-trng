@@ -46,9 +46,9 @@ void read_status_register(MemoryStatusRegister *statusRegister) {
 
 void set_write_enable_latch(bool check_register) {
   u8 data = ReRAM_WREN;
-  set_write_enable();
+  // Only needed for WRSR: set_write_enable();
   spi_send(0, &data, sizeof(data));
-  reset_write_enable();
+  // Only needed for WRSR: reset_write_enable();
 
   if (check_register) {
     MemoryStatusRegister statusRegister;
@@ -92,9 +92,9 @@ void mem_write(const u32 adr, u8 value) {
   u8 write_data[] = {ReRAM_WR, ((adr >> 16) & 0xFF), ((adr >> 8) & 0xFF), ((adr >> 0) & 0xFF), value};
 #endif
   set_write_enable_latch(false);
-  set_write_enable();
+  // Only needed for WRSR: set_write_enable();
   spi_send(0, write_data, sizeof(write_data));
-  reset_write_enable();
+  // Only needed for WRSR: reset_write_enable();
 }
 
 void mem_write_values(u32 adr, u8 valuesLen, const u8 *values) {
@@ -114,9 +114,9 @@ void mem_write_values(u32 adr, u8 valuesLen, const u8 *values) {
     write_data[i + 1 + MEM_ADR_SEND] = values[i];
   }
   set_write_enable_latch(false);
-  set_write_enable();
+  // Only needed for WRSR: set_write_enable();
   spi_send(0, write_data, sizeof(write_data));
-  reset_write_enable();
+  // Only needed for WRSR: reset_write_enable();
 }
 
 void mem_read(const u32 adr, u8 *ret) {

@@ -18,16 +18,18 @@ void putc(void *p, char c) {
 
 u32 get_el();
 
-void test_adr(const uint32_t adr) {
-  mem_write(adr, 0xaa);
-  wip_polling(0);
-  uint8_t value = 0;
+void test_adr(const u32 adr) {
+  u8 val = (u8) rand(0, 256);
+  mem_write(adr, val);
+  wip_polling_cycles();
+  u8 value = 0;
   mem_read(adr, &value);
-  printf("Read: %d -> 0x%x\n", adr, value);
+  if (value != val)
+    printf("%d: 0x%x -> 0x%x\n", adr, val, value);
 }
 
 int write_latency_puf_test() {
-  uint8_t num1 = 0, num2 = 0;
+  u8 num1 = 0, num2 = 0;
   printf("From;To;Cell;WIP_Polling\n");
   do {
     do {
@@ -54,12 +56,12 @@ int write_latency_puf_test() {
 }
 
 int write_latency_puf_test_bulk_write() {
-  uint8_t num1 = 0, num2 = 0;
+  u8 num1 = 0, num2 = 0;
   printf("From;To;Cell;WIP_Polling\n");
   do {
-    uint8_t num1Arr[128] = {[0 ... 127] = num1};
+    u8 num1Arr[128] = {[0 ... 127] = num1};
     do {
-      uint8_t num2Arr[128] = {[0 ... 127] = num2};
+      u8 num2Arr[128] = {[0 ... 127] = num2};
       for (int addrCtr = 0; addrCtr < 512; addrCtr++) {
         //for (int try = 0; try < 512; try++) {
         // Write first value
@@ -102,11 +104,55 @@ void rowhammer_test() {
   }
   printf("\n");
 
-  uint8_t value;
+  u8 value;
   for (int i = 0; i < 512; ++i) {
     // Read out all values
     mem_read(i, &value);
     printf("%d: 0x%x\n", i, value);
+  }
+}
+
+void latency_rowhammer_test() {
+  const int toTest = 512;
+  const int tries = 500;
+  u64 lats[toTest];
+  u64 lat;
+
+  // Average latency before hammer
+  printf("\n");
+  for (int i = 0; i < toTest; ++i) {
+    lats[i] = 0;
+    for (int j = 0; j < tries; ++j) {
+      mem_write(i, (int) rand(0, 256));
+      lats[i] += wip_polling_cycles();
+    }
+    printf("%d: %d\n", i, lats[i]);
+  }
+
+  printf("\n\nHAMMER\n\n");
+
+  // Hammer for some amount of time to "pre-heat"
+  int addr = 169;
+  for (int i = 0; i < 100000; ++i) {
+    mem_write(addr, (int) rand(0, 256));
+    wip_polling_cycles();
+  }
+
+  // Real hammer attack
+  printf("\nAddress: Latency | Diff\n");
+  for (int i = 0; i < toTest; ++i) {
+    lat = 0;
+    for (int j = 0; j < tries; ++j) {
+      // Hammer some more
+      for (int k = 0; k < 1000; ++k) {
+        mem_write(addr, (int) rand(0, 256));
+        wip_polling_cycles();
+      }
+      // Test latency of attack address
+      mem_write(i, (int) rand(0, 256));
+      lat += wip_polling_cycles();
+    }
+    printf("%d: %d | %d\n", i, lat, lats[i] - lat);
   }
 }
 
@@ -203,7 +249,7 @@ void kernel_main() {
 
   while (1) {
     //uart_send(uart_recv());
-    /*for (uint32_t i = 0; i < 512; i++) {
+    /*for (u32 i = 0; i < 512; i++) {
         test_adr(i);
         timer_sleep(100);
     }*/

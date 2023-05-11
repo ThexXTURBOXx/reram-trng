@@ -20,5 +20,5 @@
 #define MEM_SIZE_ADR                ((uint32_t)524288)
 #define MEM_ACCESS_WIDTH_BIT        8
 #define MEM_ACCESS_TIME_NS          ((uint32_t)150)
-#define SPI_CLOCK_DIV               128
+#define SPI_CLOCK_DIV               32
 #endif
