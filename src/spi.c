@@ -1,12 +1,13 @@
 #include "spi.h"
 #include "peripherals/spi.h"
 #include "gpio.h"
+#include "memory_defines.h"
 #include "printf.h"
 
 void spi_init() {
   // A divisor of 512 yields ~780 KHz
   // whilst 256 yields ~1.56 MHz
-  REGS_SPI0->clock = 512;
+  REGS_SPI0->clock = SPI_CLOCK_DIV;
 
   // Init GPIO pins
   gpio_pin_set_func(7, GFAlt0);  // CS1

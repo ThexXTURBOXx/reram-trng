@@ -10,6 +10,7 @@
 #define MEM_SIZE_ADR                ((uint32_t)65536)
 #define MEM_ACCESS_WIDTH_BIT        8
 #define MEM_ACCESS_TIME_NS          ((uint32_t)150)
+#define SPI_CLOCK_DIV               256
 #endif
 
 #ifdef RERAM_FUJITSU_MB85AS4MTPF_G_BCERE1
@@ -19,4 +20,5 @@
 #define MEM_SIZE_ADR                ((uint32_t)524288)
 #define MEM_ACCESS_WIDTH_BIT        8
 #define MEM_ACCESS_TIME_NS          ((uint32_t)150)
+#define SPI_CLOCK_DIV               128
 #endif
