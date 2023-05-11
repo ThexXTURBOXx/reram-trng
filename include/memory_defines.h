@@ -7,7 +7,7 @@
 // http://web.archive.org/web/20200221101215/https://www.adestotech.com/wp-content/uploads/DS-RM25C512C_079.pdf
 #define MEM_NAME                    "RERAM_ADESTO_RM25C512C_LTAI_T"
 #define MEM_ADR_SEND                2
-#define MEM_SIZE_ADR                ((uint32_t)512)
+#define MEM_SIZE_ADR                ((uint32_t)65536)
 #define MEM_ACCESS_WIDTH_BIT        8
 #define MEM_ACCESS_TIME_NS          ((uint32_t)150)
 #endif
