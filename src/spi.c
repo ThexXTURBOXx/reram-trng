@@ -4,16 +4,16 @@
 #include "printf.h"
 
 void spi_init() {
-  // A divisor of 512 yields ~800 MHz whilst 256 would yield
-  // around ~1.6 GHz, which is too much for the poor little Adesto :(
+  // A divisor of 512 yields ~780 KHz
+  // whilst 256 yields ~1.56 MHz
   REGS_SPI0->clock = 512;
 
   // Init GPIO pins
-  gpio_pin_set_func(7, GFAlt0);  //CS1
-  gpio_pin_set_func(8, GFAlt0);  //CS0
-  gpio_pin_set_func(9, GFAlt0);  //MISO
-  gpio_pin_set_func(10, GFAlt0); //MOSI
-  gpio_pin_set_func(11, GFAlt0); //SCLK
+  gpio_pin_set_func(7, GFAlt0);  // CS1
+  gpio_pin_set_func(8, GFAlt0);  // CS0
+  gpio_pin_set_func(9, GFAlt0);  // MISO
+  gpio_pin_set_func(10, GFAlt0); // MOSI
+  gpio_pin_set_func(11, GFAlt0); // SCLK
   gpio_pin_enable(7);
   gpio_pin_enable(8);
   gpio_pin_enable(9);
