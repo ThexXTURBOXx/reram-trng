@@ -7,6 +7,7 @@
 void spi_init() {
   // A divisor of 512 yields ~780 KHz
   // whilst 256 yields ~1.56 MHz
+  // 32 yields ~12.46 MHz
   REGS_SPI0->clock = SPI_CLOCK_DIV;
 
   // Init GPIO pins

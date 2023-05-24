@@ -1,7 +1,7 @@
 #pragma once
 
-//#define RERAM_ADESTO_RM25C512C_LTAI_T 1
-#define RERAM_FUJITSU_MB85AS4MTPF_G_BCERE1 1
+#define RERAM_ADESTO_RM25C512C_LTAI_T 1
+//#define RERAM_FUJITSU_MB85AS4MTPF_G_BCERE1 1
 
 #ifdef RERAM_ADESTO_RM25C512C_LTAI_T
 // http://web.archive.org/web/20200221101215/https://www.adestotech.com/wp-content/uploads/DS-RM25C512C_079.pdf
@@ -10,7 +10,7 @@
 #define MEM_SIZE_ADR                ((uint32_t)65536)
 #define MEM_ACCESS_WIDTH_BIT        8
 #define MEM_ACCESS_TIME_NS          ((uint32_t)150)
-#define SPI_CLOCK_DIV               256
+#define SPI_CLOCK_DIV               64
 #endif
 
 #ifdef RERAM_FUJITSU_MB85AS4MTPF_G_BCERE1

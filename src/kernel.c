@@ -157,7 +157,8 @@ void latency_rowhammer_test() {
 }
 
 u64 random_write_latency() {
-  // Use other RNG as seed
+  // Use other RNG as "seed"
+  // These could also be fixed
   int addr = (int) rand(0, 512);
   int num1 = (int) rand(0, 256);
   int num2 = (int) rand(0, 256);
@@ -196,11 +197,11 @@ void write_latency_rng_test() {
     bool bit2 = write_latency_random_bit();
     if (bit1 == bit2) continue;
     // For more debug information:
-    /*if (toGenerate % 10000 == 0 && totalGenerated != 0) {
+    if (toGenerate % 10000 == 0 && totalGenerated != 0) {
       printf("\n%ld µs, %d\n", time_from(blockStart), totalGenerated - blockGenerated);
       blockStart = timer_get_ticks();
       blockGenerated = totalGenerated;
-    }*/
+    }
     printf("%d", bit1);
     --toGenerate;
   }
@@ -242,6 +243,15 @@ void kernel_main() {
   printf("Testing Memory...\n");
 
   write_latency_rng_test();
+
+  /*for (u32 i = 0; i < MEM_SIZE_ADR; ++i) {
+    if (i % 1000 == 0) printf("%d\n", i);
+    for (int j = 0; j < 100; ++j)
+      test_adr(i);
+  }*/
+
+  //latency_rowhammer_test();
+
   //for (int i = 0; i < 8192; ++i)
   //  printf("%d\n", random_write_latency());
 
@@ -249,12 +259,8 @@ void kernel_main() {
 
   while (1) {
     //uart_send(uart_recv());
-    /*for (u32 i = 0; i < 512; i++) {
-        test_adr(i);
-        timer_sleep(100);
-    }*/
     /*mem_write(0, 0xaa);
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < 1024; ++i) {
         MemoryStatusRegister reg;
         read_status_register(&reg);
         printf("%d", reg.write_in_progress_bit);
