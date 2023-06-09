@@ -65,10 +65,12 @@ For further details see source code.
 regs Kusti, 23.10.2004
 */
 
+
 #ifndef __TFP_PRINTF__
 #define __TFP_PRINTF__
 
 #include <stdarg.h>
+#include <io.h>
 
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
@@ -83,7 +85,7 @@ regs Kusti, 23.10.2004
 
 #define PRINTF_LONG_SUPPORT
 
-void init_printf(void *putp, void (*putf)(void *, char));
+void init_printf(void *putp, io_device *dev);
 
 void tfp_printf(char *fmt, ...);
 

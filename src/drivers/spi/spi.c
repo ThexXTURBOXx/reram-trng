@@ -1,8 +1,8 @@
-#include "spi.h"
-#include "peripherals/spi.h"
-#include "gpio.h"
-#include "memory_defines.h"
-#include "printf.h"
+#include <spi.h>
+#include <peripherals/spi.h>
+#include <gpio.h>
+#include <memory_defines.h>
+#include <printf.h>
 
 void spi_init() {
   // A divisor of 512 yields ~780 KHz

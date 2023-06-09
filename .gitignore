@@ -2,6 +2,7 @@
 build/
 
 boot/
+!src/boot/
 
 .idea/
 

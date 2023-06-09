@@ -14,13 +14,18 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "printf.h"
+#include <printf.h>
+#include <io.h>
 
 typedef void (*putcf)(void *, char);
 
-static putcf stdout_putf;
 static void *stdout_putp;
 
+io_device *printf_device;
+
+static void stdout_putf(void *p, char c) {
+  printf_device->write(printf_device, &c, 1);
+}
 
 #ifdef PRINTF_LONG_SUPPORT
 
@@ -114,9 +119,7 @@ static void putchw(void *putp, putcf putf, int n, char z, char *bf) {
 
 void tfp_format(void *putp, putcf putf, char *fmt, va_list va) {
   char bf[12];
-
   char ch;
-
 
   while ((ch = *(fmt++))) {
     if (ch != '%')
@@ -124,7 +127,7 @@ void tfp_format(void *putp, putcf putf, char *fmt, va_list va) {
     else {
       char lz = 0;
 #ifdef  PRINTF_LONG_SUPPORT
-      char lng=0;
+      char lng = 0;
 #endif
       int w = 0;
       ch = *(fmt++);
@@ -136,9 +139,9 @@ void tfp_format(void *putp, putcf putf, char *fmt, va_list va) {
         ch = a2i(ch, &fmt, 10, &w);
       }
 #ifdef  PRINTF_LONG_SUPPORT
-      if (ch=='l') {
-          ch=*(fmt++);
-          lng=1;
+      if (ch == 'l') {
+        ch = *(fmt++);
+        lng = 1;
       }
 #endif
       switch (ch) {
@@ -147,20 +150,20 @@ void tfp_format(void *putp, putcf putf, char *fmt, va_list va) {
         case 'u' : {
 #ifdef  PRINTF_LONG_SUPPORT
           if (lng)
-              uli2a(va_arg(va, unsigned long int),10,0,bf);
+            uli2a(va_arg(va, unsigned long int), 10, 0, bf);
           else
 #endif
-          ui2a(va_arg(va, unsigned int), 10, 0, bf);
+            ui2a(va_arg(va, unsigned int), 10, 0, bf);
           putchw(putp, putf, w, lz, bf);
           break;
         }
         case 'd' : {
 #ifdef  PRINTF_LONG_SUPPORT
           if (lng)
-              li2a(va_arg(va, unsigned long int),bf);
+            li2a(va_arg(va, unsigned long int), bf);
           else
 #endif
-          i2a(va_arg(va, int), bf);
+            i2a(va_arg(va, int), bf);
           putchw(putp, putf, w, lz, bf);
           break;
         }
@@ -168,10 +171,10 @@ void tfp_format(void *putp, putcf putf, char *fmt, va_list va) {
         case 'X' :
 #ifdef  PRINTF_LONG_SUPPORT
           if (lng)
-              uli2a(va_arg(va, unsigned long int),16,(ch=='X'),bf);
+            uli2a(va_arg(va, unsigned long int), 16, (ch == 'X'), bf);
           else
 #endif
-          ui2a(va_arg(va, unsigned int), 16, (ch == 'X'), bf);
+            ui2a(va_arg(va, unsigned int), 16, (ch == 'X'), bf);
           putchw(putp, putf, w, lz, bf);
           break;
         case 'c' :
@@ -191,8 +194,8 @@ void tfp_format(void *putp, putcf putf, char *fmt, va_list va) {
 }
 
 
-void init_printf(void *putp, void (*putf)(void *, char)) {
-  stdout_putf = putf;
+void init_printf(void *putp, io_device *dev) {
+  printf_device = dev;
   stdout_putp = putp;
 }
 

@@ -1,6 +1,6 @@
-#include "common.h"
-#include "rng.h"
-#include "peripherals/rng.h"
+#include <common.h>
+#include <rng.h>
+#include <peripherals/rng.h>
 
 u64 rand(u64 min, u64 max) {
   if (!((*RNG_CTRL) & 1)) { // Is init needed?

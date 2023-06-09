@@ -8,6 +8,10 @@
 
 #define LOW_MEMORY (2 * SECTION_SIZE)
 
+#define HIGH_MEMORY                0x40000000
+#define PAGING_MEMORY            (HIGH_MEMORY - LOW_MEMORY)
+#define PAGING_PAGES            (PAGING_MEMORY/PAGE_SIZE)
+
 #ifndef __ASSEMBLER__
 
 void memzero(unsigned long src, unsigned int n);

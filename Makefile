@@ -7,8 +7,10 @@ BOOTMNT ?= boot
 
 ARMGNU ?= aarch64-linux-gnu
 
-COPS = -DRPI_VERSION=$(RPI_VERSION) -DRPI_BPLUS=$(RPI_BPLUS) -Wall -nostdlib -nostartfiles -ffreestanding \
-	   -Iinclude -mgeneral-regs-only
+INIT_MMU ?= 1
+
+COPS = -DRPI_VERSION=$(RPI_VERSION) -DRPI_BPLUS=$(RPI_BPLUS) -DINIT_MMU=$(INIT_MMU) -Wall -Wno-psabi \
+	   -nostdlib -nostartfiles -ffreestanding -Iinclude -mgeneral-regs-only
 
 ASMOPS = -Iinclude
 
@@ -29,7 +31,13 @@ $(BUILD_DIR)/%_s.o: $(SRC_DIR)/%.S
 	$(ARMGNU)-gcc $(COPS) -MMD -c $< -o $@
 
 C_FILES = $(wildcard $(SRC_DIR)/*.c)
+C_FILES += $(wildcard $(SRC_DIR)/*/*.c)
+C_FILES += $(wildcard $(SRC_DIR)/*/*/*.c)
+
 ASM_FILES = $(wildcard $(SRC_DIR)/*.S)
+ASM_FILES += $(wildcard $(SRC_DIR)/*/*.S)
+ASM_FILES += $(wildcard $(SRC_DIR)/*/*/*.S)
+
 OBJ_FILES = $(C_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%_c.o)
 OBJ_FILES += $(ASM_FILES:$(SRC_DIR)/%.S=$(BUILD_DIR)/%_s.o)
 

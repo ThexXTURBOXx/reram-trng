@@ -1,9 +1,9 @@
-#include "timer.h"
-#include "spi_memory.h"
-#include "gpio.h"
-#include "printf.h"
-#include "spi.h"
-#include "memory_defines.h"
+#include <timer.h>
+#include <spi_memory.h>
+#include <gpio.h>
+#include <printf.h>
+#include <spi.h>
+#include <memory_defines.h>
 
 void set_write_enable() {
   gpio_clear_pin(25);
