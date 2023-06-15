@@ -10,7 +10,6 @@
 #include <rng.h>
 #include <utils.h>
 #include <io.h>
-#include <peripherals/emmc.h>
 
 #define BOOT_SIGNATURE 0xAA55
 
@@ -203,19 +202,20 @@ bool write_latency_random_bit() {
 }
 
 void write_latency_rng_test() {
-  int toGenerate = 500000;
+  int totalToGenerate = 500000;
+  int toGenerate = totalToGenerate;
   int totalGenerated = 0;
   u64 start = timer_get_ticks();
   u64 blockStart = start;
   int blockGenerated = toGenerate;
   while (toGenerate) {
     // Very basic implementation of von Neumann extractor
-    ++totalGenerated;
+    totalGenerated += 2;
     bool bit1 = write_latency_random_bit();
     bool bit2 = write_latency_random_bit();
     if (bit1 == bit2) continue;
     // For more debug information:
-    if (toGenerate % 10000 == 0 && totalGenerated != 0) {
+    if (toGenerate % 10000 == 0 && toGenerate < totalToGenerate) {
       printf("\n%ld µs, %d\n", time_from(blockStart), totalGenerated - blockGenerated);
       blockStart = timer_get_ticks();
       blockGenerated = totalGenerated;
@@ -224,7 +224,7 @@ void write_latency_rng_test() {
     --toGenerate;
   }
   printf("\n\nTime needed: %ld µs\n", time_from(start));
-  printf("Total bits generated: %d\n\n", 2 * totalGenerated);
+  printf("Total bits generated: %d\n\n", totalGenerated);
 }
 
 void kernel_main() {
@@ -239,12 +239,12 @@ void kernel_main() {
 
 #if RPI_VERSION == 3
 #if RPI_BPLUS
-  printf("\tBoard: Raspberry PI 3B+\n");
+  printf("\tBoard: Raspberry Pi 3B+\n");
 #else
-  printf("\tBoard: Raspberry PI 3\n");
+  printf("\tBoard: Raspberry Pi 3\n");
 #endif
 #elif RPI_VERSION == 4
-  printf("\tBoard: Raspberry PI 4\n");
+  printf("\tBoard: Raspberry Pi 4\n");
 #endif
 
   printf("\nException Level: %d\n", get_el());
