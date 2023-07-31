@@ -230,7 +230,7 @@ void write_latency_rng_test() {
 void kernel_main() {
   uart_init();
   init_printf(0, io_device_find("muart"));
-  printf("\nRaspberry PI Bare Metal OS Initializing...\n");
+  printf("\nRaspberry Pi Bare Metal OS Initializing...\n");
 
   irq_init_vectors();
   enable_interrupt_controller();
