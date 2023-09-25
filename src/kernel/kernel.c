@@ -217,7 +217,7 @@ void write_latency_rng_test() {
     // For more debug information:
     if (toGenerate % 10000 == 0) {
       if (toGenerate < totalToGenerate) {
-        printf("\n%ld µs, %d\n", time_from(blockStart), totalGenerated - blockGenerated);
+        printf("\n%lld µs, %d\n", time_from(blockStart), totalGenerated - blockGenerated);
         blockStart = timer_get_ticks();
       }
       blockGenerated = totalGenerated;
@@ -225,7 +225,7 @@ void write_latency_rng_test() {
     printf("%d", bit1);
     --toGenerate;
   }
-  printf("\n\nTime needed: %ld µs\n", time_from(start));
+  printf("\n\nTime needed: %lld µs\n", time_from(start));
   printf("Total bits generated: %d\n\n", totalGenerated);
 }
 
