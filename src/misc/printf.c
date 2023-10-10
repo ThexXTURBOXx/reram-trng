@@ -205,7 +205,7 @@ void tfp_format(void *putp, putcf putf, char *fmt, va_list va) {
         case 'X' :
 #ifdef  PRINTF_LONG_SUPPORT
           if (lnglng)
-            uli2a(va_arg(va, unsigned long long int), 16, (ch == 'X'), bf);
+            ulli2a(va_arg(va, unsigned long long int), 16, (ch == 'X'), bf);
           else if (lng)
             uli2a(va_arg(va, unsigned long int), 16, (ch == 'X'), bf);
           else
