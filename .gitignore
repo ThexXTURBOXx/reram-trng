@@ -1,8 +1,9 @@
 
 build/
 
-boot/
-!src/boot/
+boot/*
+!src/boot/*
+!boot/.gitkeep
 
 .idea/
 
