@@ -11,6 +11,24 @@
 
 ![Wiring diagram](./Wiring_Steckplatine.png?raw=true)
 
+# Compilation
+
+## Use a Pre-built Kernel
+
+1. Go to the [latest pipeline build](https://git.fim.uni-passau.de/mexis/rpi_measurement_kernel/-/pipelines/latest)
+1. Click on the build that corresponds to your ReRAM RPi
+1. On the right sidebar, click on `Download` under `Job artifacts`
+1. The zip file contains all the relevant files. Be sure to rename the kernel that you want to deploy to just `kernel8.img`!
+
+## Doing It Yourself
+
+1. Clone this Git repository
+1. Install either a cross-compiling `gcc` instance (`gcc-aarch64-linux-gnu`) or the native `gcc` if you are already on the ARMv8/AARCH64v8 platform
+1. Install `make` and just run `make`
+1. You should get a `kernel8.img` file after a few moments
+1. Now run `make armstub`
+1. You should get a `armstub-new.bin` file a few moments (this does not need to be recompiled in the future)
+
 # ReRAM RPi Setup
 
 1. Start Raspberry Pi Imager
