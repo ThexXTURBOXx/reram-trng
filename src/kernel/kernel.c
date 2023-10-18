@@ -7,6 +7,7 @@
 #include <timer.h>
 #include <spi.h>
 #include <spi_memory.h>
+#include <mt19937ar.h>
 #include <rng.h>
 #include <utils.h>
 #include <io.h>
@@ -174,11 +175,17 @@ void latency_rowhammer_test() {
 }
 
 u64 random_write_latency() {
-  // Use other RNG as "seed"
   // These could also be fixed
-  int addr = (int) rand(0, 512);
+
+  // Use HW RNG as "seed"
+  /*int addr = (int) rand(0, 512);
   int num1 = (int) rand(0, 256);
-  int num2 = (int) rand(0, 256);
+  int num2 = (int) rand(0, 256);*/
+
+  // Use MT19937AR as "seed"
+  int addr = (int) genrand_range(0, 512);
+  int num1 = (int) genrand_range(0, 256);
+  int num2 = (int) genrand_range(0, 256);
 
   // Write first value
   mem_write(addr, num1);
@@ -238,6 +245,7 @@ void kernel_main() {
   enable_interrupt_controller();
   irq_enable();
   timer_init();
+  init_genrand(0);
 
 #if RPI_VERSION == 3
 #if RPI_BPLUS
