@@ -6,17 +6,17 @@ image: ghcr.io/cross-rs/aarch64-unknown-linux-gnu
 Build-RPi3:
   stage: build
   script:
-    - "mv ci/adesto-512 include/memory_defines.h"
-    - "make RPI_VERSION=3 RPI_BPLUS=0 -j4"
+    - "cp ci/adesto-512 include/memory_defines.h"
+    - "make RPI_VERSION=3 RPI_BPLUS=0 -j4 -B"
     - "mv kernel8.img kernel8-adesto-512-rpi3.img"
-    - "mv ci/adesto-cal include/memory_defines.h"
-    - "make RPI_VERSION=3 RPI_BPLUS=0 -j4"
+    - "cp ci/adesto-cal include/memory_defines.h"
+    - "make RPI_VERSION=3 RPI_BPLUS=0 -j4 -B"
     - "mv kernel8.img kernel8-adesto-cal-rpi3.img"
-    - "mv ci/fujitsu-512 include/memory_defines.h"
-    - "make RPI_VERSION=3 RPI_BPLUS=0 -j4"
+    - "cp ci/fujitsu-512 include/memory_defines.h"
+    - "make RPI_VERSION=3 RPI_BPLUS=0 -j4 -B"
     - "mv kernel8.img kernel8-fujitsu-512-rpi3.img"
-    - "mv ci/fujitsu-cal include/memory_defines.h"
-    - "make RPI_VERSION=3 RPI_BPLUS=0 -j4"
+    - "cp ci/fujitsu-cal include/memory_defines.h"
+    - "make RPI_VERSION=3 RPI_BPLUS=0 -j4 -B"
     - "mv kernel8.img kernel8-fujitsu-cal-rpi3.img"
   artifacts:
     expire_in: never
@@ -27,17 +27,17 @@ Build-RPi3:
 Build-RPi3B+:
   stage: build
   script:
-    - "mv ci/adesto-512 include/memory_defines.h"
-    - "make RPI_VERSION=3 RPI_BPLUS=1 -j4"
+    - "cp ci/adesto-512 include/memory_defines.h"
+    - "make RPI_VERSION=3 RPI_BPLUS=1 -j4 -B"
     - "mv kernel8.img kernel8-adesto-512-rpi3b+.img"
-    - "mv ci/adesto-cal include/memory_defines.h"
-    - "make RPI_VERSION=3 RPI_BPLUS=1 -j4"
+    - "cp ci/adesto-cal include/memory_defines.h"
+    - "make RPI_VERSION=3 RPI_BPLUS=1 -j4 -B"
     - "mv kernel8.img kernel8-adesto-cal-rpi3b+.img"
-    - "mv ci/fujitsu-512 include/memory_defines.h"
-    - "make RPI_VERSION=3 RPI_BPLUS=1 -j4"
+    - "cp ci/fujitsu-512 include/memory_defines.h"
+    - "make RPI_VERSION=3 RPI_BPLUS=1 -j4 -B"
     - "mv kernel8.img kernel8-fujitsu-512-rpi3b+.img"
-    - "mv ci/fujitsu-cal include/memory_defines.h"
-    - "make RPI_VERSION=3 RPI_BPLUS=1 -j4"
+    - "cp ci/fujitsu-cal include/memory_defines.h"
+    - "make RPI_VERSION=3 RPI_BPLUS=1 -j4 -B"
     - "mv kernel8.img kernel8-fujitsu-cal-rpi3b+.img"
   artifacts:
     expire_in: never
@@ -48,17 +48,17 @@ Build-RPi3B+:
 Build-RPi4:
   stage: build
   script:
-    - "mv ci/adesto-512 include/memory_defines.h"
-    - "make RPI_VERSION=4 RPI_BPLUS=0 -j4"
+    - "cp ci/adesto-512 include/memory_defines.h"
+    - "make RPI_VERSION=4 RPI_BPLUS=0 -j4 -B"
     - "mv kernel8.img kernel8-adesto-512-rpi4.img"
-    - "mv ci/adesto-cal include/memory_defines.h"
-    - "make RPI_VERSION=4 RPI_BPLUS=0 -j4"
+    - "cp ci/adesto-cal include/memory_defines.h"
+    - "make RPI_VERSION=4 RPI_BPLUS=0 -j4 -B"
     - "mv kernel8.img kernel8-adesto-cal-rpi4.img"
-    - "mv ci/fujitsu-512 include/memory_defines.h"
-    - "make RPI_VERSION=4 RPI_BPLUS=0 -j4"
+    - "cp ci/fujitsu-512 include/memory_defines.h"
+    - "make RPI_VERSION=4 RPI_BPLUS=0 -j4 -B"
     - "mv kernel8.img kernel8-fujitsu-512-rpi4.img"
-    - "mv ci/fujitsu-cal include/memory_defines.h"
-    - "make RPI_VERSION=4 RPI_BPLUS=0 -j4"
+    - "cp ci/fujitsu-cal include/memory_defines.h"
+    - "make RPI_VERSION=4 RPI_BPLUS=0 -j4 -B"
     - "mv kernel8.img kernel8-fujitsu-cal-rpi4.img"
   artifacts:
     expire_in: never
