@@ -1,22 +1,22 @@
 stages:
   - build
 
-image: dockcross/linux-arm64-full
+image: ghcr.io/cross-rs/aarch64-unknown-linux-gnu
 
 Build:
   stage: build
   script:
     - "mv ci/adesto-512 include/memory_defines.h"
-    - 'make -j4'
+    - "make -j4"
     - "mv kernel8.img kernel8-adesto-512.img"
     - "mv ci/adesto-cal include/memory_defines.h"
-    - 'make -j4'
+    - "make -j4"
     - "mv kernel8.img kernel8-adesto-cal.img"
     - "mv ci/fujitsu-512 include/memory_defines.h"
-    - 'make -j4'
+    - "make -j4"
     - "mv kernel8.img kernel8-fujitsu-512.img"
     - "mv ci/fujitsu-cal include/memory_defines.h"
-    - 'make -j4'
+    - "make -j4"
     - "mv kernel8.img kernel8-fujitsu-cal.img"
   artifacts:
     expire_in: never
