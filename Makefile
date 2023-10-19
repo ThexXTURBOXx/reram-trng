@@ -2,6 +2,10 @@
 RPI_VERSION ?= 3
 # Is this a B+ model?
 RPI_BPLUS ?= 1
+# Memory type (see include/memory_defines.h for explanation)
+MEM_TYPE ?= 1
+# SPI clock divider
+SPI_CLOCK_DIV ?= 512
 
 BOOTMNT ?= boot
 
@@ -9,8 +13,8 @@ ARMGNU ?= aarch64-linux-gnu
 
 INIT_MMU ?= 1
 
-COPS = -DRPI_VERSION=$(RPI_VERSION) -DRPI_BPLUS=$(RPI_BPLUS) -DINIT_MMU=$(INIT_MMU) -Wall -Wno-psabi \
-	   -nostdlib -nostartfiles -ffreestanding -Iinclude -mgeneral-regs-only
+COPS = -DRPI_VERSION=$(RPI_VERSION) -DRPI_BPLUS=$(RPI_BPLUS) -DMEM_TYPE=$(MEM_TYPE) -DSPI_CLOCK_DIV=$(SPI_CLOCK_DIV) \
+	   -DINIT_MMU=$(INIT_MMU) -Wall -Wno-psabi -nostdlib -nostartfiles -ffreestanding -Iinclude -mgeneral-regs-only
 
 ASMOPS = -Iinclude
 

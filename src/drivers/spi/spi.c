@@ -1,8 +1,11 @@
 #include <spi.h>
 #include <peripherals/spi.h>
 #include <gpio.h>
-#include <memory_defines.h>
 #include <printf.h>
+
+#ifndef SPI_CLOCK_DIV
+#error SPI_CLOCK_DIV NOT DEFINED
+#endif
 
 void spi_init() {
   // A divisor of 512 yields ~780 KHz
