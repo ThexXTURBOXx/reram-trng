@@ -36,6 +36,15 @@ typedef struct PACKED {
   u16 bootSignature;
 } master_boot_record;
 
+void internal_rng_test() {
+  while (true) {
+    int addr = (int) rand(0, 512);
+    int num1 = (int) rand(0, 256);
+    int num2 = (int) rand(0, 256);
+    printf("%d,%d,%d\n", addr, num1, num2);
+  }
+}
+
 void test_adr(const u32 adr) {
   u8 val = (u8) rand(0, 256);
   mem_write(adr, val);
