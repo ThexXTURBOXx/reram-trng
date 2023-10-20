@@ -8,7 +8,7 @@
 #include <spi.h>
 #include <spi_memory.h>
 #include <mt19937ar.h>
-#include <rng.h>
+#include <rpi_hwrng.h>
 #include <utils.h>
 #include <io.h>
 
@@ -47,15 +47,15 @@ void mt_rng_test() {
 
 void internal_rng_test() {
   while (true) {
-    int addr = (int) rand(0, 512);
-    int num1 = (int) rand(0, 256);
-    int num2 = (int) rand(0, 256);
+    int addr = (int) rpi_hwrng_rand(0, 512);
+    int num1 = (int) rpi_hwrng_rand(0, 256);
+    int num2 = (int) rpi_hwrng_rand(0, 256);
     printf("%d,%d,%d\n", addr, num1, num2);
   }
 }
 
 void test_adr(const u32 adr) {
-  u8 val = (u8) rand(0, 256);
+  u8 val = (u8) rpi_hwrng_rand(0, 256);
   mem_write(adr, val);
   wip_polling_cycles();
   u8 value = 0;
@@ -134,7 +134,7 @@ void rowhammer_test() {
   for (int i = 0; i < 1000000; ++i) {
     if (i % 10000 == 0) printf("\r%d", i);
     // Write random value
-    mem_write(addr, (int) rand(0, 256));
+    mem_write(addr, (int) rpi_hwrng_rand(0, 256));
     // Wait until the WEL latch turns reset
     //wip_polling_cycles();
   }
@@ -159,7 +159,7 @@ void latency_rowhammer_test() {
   for (int i = 0; i < toTest; ++i) {
     lats[i] = 0;
     for (int j = 0; j < tries; ++j) {
-      mem_write(i, (int) rand(0, 256));
+      mem_write(i, (int) rpi_hwrng_rand(0, 256));
       lats[i] += wip_polling_cycles();
     }
     printf("%d: %d\n", i, lats[i]);
@@ -170,7 +170,7 @@ void latency_rowhammer_test() {
   // Hammer for some amount of time to "pre-heat"
   int addr = 169;
   for (int i = 0; i < 100000; ++i) {
-    mem_write(addr, (int) rand(0, 256));
+    mem_write(addr, (int) rpi_hwrng_rand(0, 256));
     wip_polling_cycles();
   }
 
@@ -181,11 +181,11 @@ void latency_rowhammer_test() {
     for (int j = 0; j < tries; ++j) {
       // Hammer some more
       for (int k = 0; k < 1000; ++k) {
-        mem_write(addr, (int) rand(0, 256));
+        mem_write(addr, (int) rpi_hwrng_rand(0, 256));
         wip_polling_cycles();
       }
       // Test latency of attack address
-      mem_write(i, (int) rand(0, 256));
+      mem_write(i, (int) rpi_hwrng_rand(0, 256));
       lat += wip_polling_cycles();
     }
     printf("%d: %d | %d\n", i, lat, lats[i] - lat);
@@ -196,9 +196,9 @@ u64 random_write_latency() {
   // These could also be fixed
 
   // Use HW RNG as "seed"
-  /*int addr = (int) rand(0, 512);
-  int num1 = (int) rand(0, 256);
-  int num2 = (int) rand(0, 256);*/
+  /*int addr = (int) rpi_hwrng_rand(0, 512);
+  int num1 = (int) rpi_hwrng_rand(0, 256);
+  int num2 = (int) rpi_hwrng_rand(0, 256);*/
 
   // Use MT19937AR as "seed"
   int addr = (int) genrand_range(0, 512);
