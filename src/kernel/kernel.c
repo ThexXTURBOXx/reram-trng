@@ -280,7 +280,7 @@ void kernel_main() {
   printf("Sleeping 200 ms...\n");
   timer_sleep(200);
 
-  printf("Initializing SPI...\n");
+  printf("Initializing SPI with divider %d...\n", SPI_CLOCK_DIV);
   spi_init();
   gpio_pin_set_func(25, GFOutput);
 
