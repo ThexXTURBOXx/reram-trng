@@ -1,6 +1,4 @@
-#pragma once
-
-#include "common.h"
+#include <circle/types.h>
 
 /* initializes mt[N] with a seed */
 void init_genrand(unsigned long s);

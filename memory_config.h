@@ -1,4 +1,9 @@
-#pragma once
+//
+// Created by Administrator on 08.11.2023.
+//
+
+#ifndef CIRCLE_MEMORY_CONFIG_H
+#define CIRCLE_MEMORY_CONFIG_H
 
 #define RERAM_ADESTO_RM25C512C_LTAI_T 1
 #define RERAM_FUJITSU_MB85AS4MTPF_G_BCERE1 2
@@ -26,3 +31,6 @@
 #error MEM_TYPE NOT DEFINED
 
 #endif
+
+
+#endif //CIRCLE_MEMORY_CONFIG_H

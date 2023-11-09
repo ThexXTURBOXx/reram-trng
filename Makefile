@@ -1,69 +1,21 @@
-# RPI main version
-RPI_VERSION ?= 3
-# Is this a B+ model?
-RPI_BPLUS ?= 1
-# Memory type (see include/memory_defines.h for explanation)
-MEM_TYPE ?= 1
-# SPI clock divider
-SPI_CLOCK_DIV ?= 512
+#
+# Makefile
+#
 
-BOOTMNT ?= boot
+CIRCLEHOME = circle
 
-ARMGNU ?= aarch64-linux-gnu
+MEM_TYPE ?= 2
+SPI_FREQ ?= 3120000
 
-INIT_MMU ?= 1
+CPPFLAGS += -DMEM_TYPE=$(MEM_TYPE) -DSPI_FREQ=$(SPI_FREQ)
 
-COPS = -DRPI_VERSION=$(RPI_VERSION) -DRPI_BPLUS=$(RPI_BPLUS) -DMEM_TYPE=$(MEM_TYPE) -DSPI_CLOCK_DIV=$(SPI_CLOCK_DIV) \
-	   -DINIT_MMU=$(INIT_MMU) -Wall -Wno-psabi -nostdlib -nostartfiles -ffreestanding -Iinclude -mgeneral-regs-only
+OBJS      = main.o kernel.o spi_memory.o mt19937ar.o
 
-ASMOPS = -Iinclude
+LIBS      = $(CIRCLEHOME)/addon/fatfs/libfatfs.a \
+            $(CIRCLEHOME)/addon/SDCard/libsdcard.a \
+            $(CIRCLEHOME)/lib/fs/libfs.a \
+            $(CIRCLEHOME)/lib/libcircle.a
 
-BUILD_DIR = build
-SRC_DIR = src
+include $(CIRCLEHOME)/app/Rules.mk
 
-all : kernel8.img
-
-clean :
-	rm -rf $(BUILD_DIR) *.img 
-
-$(BUILD_DIR)/%_c.o: $(SRC_DIR)/%.c
-	mkdir -p $(@D)
-	$(ARMGNU)-gcc $(COPS) -MMD -c $< -o $@
-
-$(BUILD_DIR)/%_s.o: $(SRC_DIR)/%.S
-	mkdir -p $(@D)
-	$(ARMGNU)-gcc $(COPS) -MMD -c $< -o $@
-
-C_FILES = $(wildcard $(SRC_DIR)/*.c)
-C_FILES += $(wildcard $(SRC_DIR)/*/*.c)
-C_FILES += $(wildcard $(SRC_DIR)/*/*/*.c)
-
-ASM_FILES = $(wildcard $(SRC_DIR)/*.S)
-ASM_FILES += $(wildcard $(SRC_DIR)/*/*.S)
-ASM_FILES += $(wildcard $(SRC_DIR)/*/*/*.S)
-
-OBJ_FILES = $(C_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%_c.o)
-OBJ_FILES += $(ASM_FILES:$(SRC_DIR)/%.S=$(BUILD_DIR)/%_s.o)
-
-DEP_FILES = $(OBJ_FILES:%.o=%.d)
--include $(DEP_FILES)
-
-kernel8.img: $(SRC_DIR)/linker.ld $(OBJ_FILES)
-	@echo "Building for RPI $(value RPI_VERSION) +?$(value RPI_BPLUS)"
-	@echo "Deploy to $(value BOOTMNT)"
-	@echo ""
-	$(ARMGNU)-ld -T $(SRC_DIR)/linker.ld -o $(BUILD_DIR)/kernel8.elf $(OBJ_FILES)
-	$(ARMGNU)-objcopy $(BUILD_DIR)/kernel8.elf -O binary kernel8.img
-	cp kernel8.img $(BOOTMNT)/
-	cp config.txt $(BOOTMNT)/
-	sync
-
-armstub/build/armstub_s.o: armstub/src/armstub.S
-	mkdir -p $(@D)
-	$(ARMGNU)-gcc $(COPS) -MMD -c $< -o $@
-
-armstub: armstub/build/armstub_s.o
-	$(ARMGNU)-ld --section-start=.text=0 -o armstub/build/armstub.elf armstub/build/armstub_s.o
-	$(ARMGNU)-objcopy armstub/build/armstub.elf -O binary armstub-new.bin
-	cp armstub-new.bin $(BOOTMNT)/
-	sync
+-include $(DEPS)

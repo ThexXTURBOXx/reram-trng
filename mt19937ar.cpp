@@ -41,8 +41,7 @@
    email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 */
 
-#include <common.h>
-#include <mt19937ar.h>
+#include "mt19937ar.h"
 
 /* Period parameters */
 #define N 624
@@ -106,7 +105,7 @@ void init_by_array(const unsigned long init_key[], int key_length) {
 }
 
 /* generates a random number on [0,0xffffffff]-interval */
-u32 genrand_int32(void) {
+u32 genrand_int32() {
   unsigned long y;
   static unsigned long mag01[2] = {0x0UL, MATRIX_A};
   /* mag01[x] = x * MATRIX_A  for x=0,1 */
@@ -143,7 +142,7 @@ u32 genrand_int32(void) {
 }
 
 /* generates a random number on [0,0x7fffffff]-interval */
-long genrand_int31(void) {
+long genrand_int31() {
   return (long) (genrand_int32() >> 1);
 }
 
