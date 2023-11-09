@@ -137,8 +137,8 @@ void CKernel::WriteLatencyRngTest() {
   int idxBits = 0, idxDebug = 0;
   u64 newUptime;
 
-  constexpr int totalToGenerate = 5000; //500000;
-  constexpr int debugSteps = 1000; //10000;
+  constexpr int totalToGenerate = 500000;
+  constexpr int debugSteps = 10000;
 
   char generated[totalToGenerate];
   u64 debugTimes[totalToGenerate / debugSteps];
