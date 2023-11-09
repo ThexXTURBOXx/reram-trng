@@ -1,7 +1,3 @@
-//
-// Created by Administrator on 08.11.2023.
-//
-
 #ifndef CIRCLE_MEMORY_CONFIG_H
 #define CIRCLE_MEMORY_CONFIG_H
 

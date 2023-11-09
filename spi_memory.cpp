@@ -1,7 +1,3 @@
-//
-// Created by Administrator on 08.11.2023.
-//
-
 #include "kernel.h"
 #include "spi_memory.h"
 

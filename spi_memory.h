@@ -1,7 +1,3 @@
-//
-// Created by Administrator on 08.11.2023.
-//
-
 #include <circle/types.h>
 #include "memory_config.h"
 
