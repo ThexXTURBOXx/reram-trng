@@ -26,7 +26,7 @@
 1. Install either a cross-compiling `gcc` instance (`gcc-aarch64-linux-gnu`) or the native `gcc` if you are already on the ARMv8/AARCH64v8 platform
 1. Install `make` and `wget`
 1. Run `./init.sh`
-1. Run `make boot`
+1. Run `./compile.sh` with your desired parameters
 1. All the required files can be found in `boot`
 
 # ReRAM RPi Setup

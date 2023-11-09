@@ -52,6 +52,7 @@ boolean CKernel::Initialize() {
 
 TShutdownMode CKernel::Run() {
   m_Logger.Write(FromKernel, LogNotice, "Compile time: " __DATE__ " " __TIME__);
+  m_Logger.Write(FromKernel, LogNotice, "Memory: %s, SPI Frequency: %lld", MEM_NAME, SPI_FREQ);
 
   // Mount file system
   if (f_mount(&m_FileSystem, DRIVE, 1) != FR_OK) {
