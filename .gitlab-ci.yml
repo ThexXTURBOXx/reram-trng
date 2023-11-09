@@ -1,14 +1,15 @@
 stages:
   - build
 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_SUBMODULE_PATHS: circle
+
 image: ghcr.io/cross-rs/aarch64-unknown-linux-gnu
 
 Build:
   stage: build
   script:
-    - "git submodule init"
-    - "ls -la circle"
-    - "git submodule update"
     - "./init.sh"
     - "make -j6"
     - "cp -R circle/boot/* boot/*"
