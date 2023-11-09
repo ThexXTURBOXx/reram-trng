@@ -19,3 +19,8 @@ LIBS      = $(CIRCLEHOME)/addon/fatfs/libfatfs.a \
 include $(CIRCLEHOME)/app/Rules.mk
 
 -include $(DEPS)
+
+boot: kernel8.img
+	cp -R circle/boot/* boot/
+	cp kernel*.img boot/
+	cp boot/config64.txt boot/config.txt
