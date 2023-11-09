@@ -15,7 +15,7 @@ MEM_TYPE="$1"
 SPI_FREQ="$2"
 
 # Run the make command with the parameters
-make MEM_TYPE=$MEM_TYPE SPI_FREQ=$SPI_FREQ -j4 boot
+make MEM_TYPE=$MEM_TYPE SPI_FREQ=$SPI_FREQ -j4 -B boot
 
 if [ $FINAL_NAME != "kernel8" ]; then
   mv boot/kernel8.img boot/$FINAL_NAME.img
