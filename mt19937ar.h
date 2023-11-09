@@ -1,3 +1,6 @@
+#ifndef CIRCLE_MT19937AR_H
+#define CIRCLE_MT19937AR_H
+
 #include <circle/types.h>
 
 /* initializes mt[N] with a seed */
@@ -10,10 +13,10 @@ void init_genrand(unsigned long s);
 void init_by_array(const unsigned long init_key[], int key_length);
 
 /* generates a random number on [0,0xffffffff]-interval */
-u32 genrand_int32(void);
+u32 genrand_int32();
 
 /* generates a random number on [0,0x7fffffff]-interval */
-long genrand_int31(void);
+long genrand_int31();
 
 ///* generates a random number on [0,1]-real-interval */
 //double genrand_real1(void);
@@ -30,3 +33,5 @@ long genrand_int31(void);
 
 /* generates a random number on [min,max)-interval */
 u32 genrand_range(long min, long max);
+
+#endif //CIRCLE_MT19937AR_H

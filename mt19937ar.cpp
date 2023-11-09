@@ -54,11 +54,11 @@ static unsigned long mt[N]; /* the array for the state vector  */
 static int mti = N + 1; /* mti==N+1 means mt[N] is not initialized */
 
 /* initializes mt[N] with a seed */
-void init_genrand(unsigned long s) {
+void init_genrand(const unsigned long s) {
   mt[0] = s & 0xffffffffUL;
   for (mti = 1; mti < N; mti++) {
     mt[mti] =
-        (1812433253UL * (mt[mti - 1] ^ (mt[mti - 1] >> 30)) + mti);
+      (1812433253UL * (mt[mti - 1] ^ (mt[mti - 1] >> 30)) + mti);
     /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
     /* In the previous versions, MSBs of the seed affect   */
     /* only MSBs of the array mt[].                        */
@@ -72,15 +72,14 @@ void init_genrand(unsigned long s) {
 /* init_key is the array for initializing keys */
 /* key_length is its length */
 /* slight change for C++, 2004/2/26 */
-void init_by_array(const unsigned long init_key[], int key_length) {
-  int i, j, k;
+void init_by_array(const unsigned long init_key[], const int key_length) {
   init_genrand(19650218UL);
-  i = 1;
-  j = 0;
-  k = (N > key_length ? N:key_length);
+  int i = 1;
+  int j = 0;
+  int k = (N > key_length ? N : key_length);
   for (; k; k--) {
     mt[i] = (mt[i] ^ ((mt[i - 1] ^ (mt[i - 1] >> 30)) * 1664525UL))
-        + init_key[j] + j; /* non linear */
+      + init_key[j] + j; /* non linear */
     mt[i] &= 0xffffffffUL; /* for WORDSIZE > 32 machines */
     i++;
     j++;
@@ -92,7 +91,7 @@ void init_by_array(const unsigned long init_key[], int key_length) {
   }
   for (k = N - 1; k; k--) {
     mt[i] = (mt[i] ^ ((mt[i - 1] ^ (mt[i - 1] >> 30)) * 1566083941UL))
-        - i; /* non linear */
+      - i; /* non linear */
     mt[i] &= 0xffffffffUL; /* for WORDSIZE > 32 machines */
     i++;
     if (i >= N) {
@@ -113,7 +112,7 @@ u32 genrand_int32() {
   if (mti >= N) { /* generate N words at one time */
     int kk;
 
-    if (mti == N + 1)   /* if init_genrand() has not been called, */
+    if (mti == N + 1) /* if init_genrand() has not been called, */
       init_genrand(5489UL); /* a default initial seed is used */
 
     for (kk = 0; kk < N - M; kk++) {
@@ -143,7 +142,7 @@ u32 genrand_int32() {
 
 /* generates a random number on [0,0x7fffffff]-interval */
 long genrand_int31() {
-  return (long) (genrand_int32() >> 1);
+  return static_cast<long>(genrand_int32() >> 1);
 }
 
 ///* generates a random number on [0,1]-real-interval */
@@ -172,7 +171,7 @@ long genrand_int31() {
 ///* These real versions are due to Isaku Wada, 2002/01/09 added */
 
 /* generates a random number on [min,max)-interval */
-u32 genrand_range(long min, long max) {
+u32 genrand_range(const long min, const long max) {
   return genrand_int31() % (max - min) + min;
 }
 

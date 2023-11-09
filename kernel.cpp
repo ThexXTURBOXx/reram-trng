@@ -2,29 +2,27 @@
 // kernel.cpp
 //
 #include "kernel.h"
-#include "spi_memory.h"
 #include "mt19937ar.h"
 
 #define DRIVE        "SD:"
 
 CKernel::CKernel()
-    : m_Timer(&m_Interrupt),
-      m_Logger(LogDebug, &m_Timer),
-      m_SPIMaster(SPI_FREQ, SPI_CPOL, SPI_CPHA, SPI_MASTER_DEVICE),
-      m_WEPin(25, GPIOModeOutput),
-      m_EMMC(&m_Interrupt, &m_Timer, &m_ActLED),
-      m_FileSystem() {
-}
+  : m_Timer(&m_Interrupt),
+    m_Logger(LogDebug, &m_Timer),
+    m_SPIMaster(SPI_FREQ, SPI_CPOL, SPI_CPHA, SPI_MASTER_DEVICE),
+    m_WEPin(25, GPIOModeOutput),
+    m_EMMC(&m_Interrupt, &m_Timer, &m_ActLED),
+    m_FileSystem() {}
 
 CKernel::~CKernel() = default;
 
-boolean CKernel::Initialize() {
-  boolean bOK = TRUE;
+bool CKernel::Initialize() {
+  bool bOK = TRUE;
 
   bOK = m_Serial.Initialize(115200);
 
   if (bOK) {
-    CDevice *pTarget = m_DeviceNameService.GetDevice(m_Options.GetLogDevice(), FALSE);
+    CDevice* pTarget = m_DeviceNameService.GetDevice(m_Options.GetLogDevice(), FALSE);
     if (pTarget == nullptr) {
       pTarget = &m_Serial;
     }
@@ -66,11 +64,11 @@ TShutdownMode CKernel::Run() {
   return ShutdownNone;
 }
 
-bool CKernel::FileExists(const char *path) {
+bool CKernel::FileExists(const char* path) {
   return f_stat(path, nullptr) == FR_OK;
 }
 
-CString CKernel::GetFreeFile(const char *pattern) {
+CString CKernel::GetFreeFile(const char* pattern) {
   CString Msg;
   int i = 0;
   while (true) {
@@ -94,7 +92,7 @@ u64 CKernel::GetClockTicksHiLo() {
 
   PeripheralExit();
 
-  return ((u64) hi << 32) | lo;
+  return static_cast<u64>(hi) << 32 | lo;
 }
 
 void CKernel::IndicateStop() {
@@ -110,9 +108,9 @@ u64 CKernel::RandomWriteLatency() {
   int num2 = (int) m_Random.GetNumber() % 256;*/
 
   // Use MT19937AR as "seed"
-  int addr = (int) genrand_range(0, MEM_SIZE_ADR);
-  int num1 = (int) genrand_range(0, 256);
-  int num2 = (int) genrand_range(0, 256);
+  const int addr = static_cast<int>(genrand_range(0, MEM_SIZE_ADR));
+  const int num1 = static_cast<int>(genrand_range(0, 256));
+  const int num2 = static_cast<int>(genrand_range(0, 256));
 
   // Write first value
   MemWrite(addr, num1);
@@ -124,7 +122,7 @@ u64 CKernel::RandomWriteLatency() {
   MemWrite(addr, num2);
 
   // Measure write latency
-  u64 write_latency = WIPPollingCycles();
+  const u64 write_latency = WIPPollingCycles();
 
   // This is the rather random latency
   return write_latency;
@@ -132,16 +130,15 @@ u64 CKernel::RandomWriteLatency() {
 
 bool CKernel::WriteLatencyRandomBit() {
   // Extract "random" LSB
-  return (bool) (RandomWriteLatency() & 1);
+  return static_cast<bool>(RandomWriteLatency() & 1);
 }
 
 void CKernel::WriteLatencyRngTest() {
   int idxBits = 0, idxDebug = 0;
-  bool bit1, bit2;
   u64 newUptime;
 
-  constexpr int totalToGenerate = 5000;//500000;
-  constexpr int debugSteps = 1000;//10000;
+  constexpr int totalToGenerate = 5000; //500000;
+  constexpr int debugSteps = 1000; //10000;
 
   char generated[totalToGenerate];
   u64 debugTimes[totalToGenerate / debugSteps];
@@ -149,13 +146,13 @@ void CKernel::WriteLatencyRngTest() {
 
   int toGenerate = totalToGenerate;
   int totalGenerated = 0;
-  u64 start = GetClockTicksHiLo();
+  const u64 start = GetClockTicksHiLo();
   u64 blockStart = start;
   int blockGenerated = toGenerate;
   while (toGenerate > 0) {
     // Very basic implementation of von Neumann extractor
-    bit1 = WriteLatencyRandomBit();
-    bit2 = WriteLatencyRandomBit();
+    const bool bit1 = WriteLatencyRandomBit();
+    const bool bit2 = WriteLatencyRandomBit();
     totalGenerated += 2;
     if (bit1 == bit2) continue;
     // For more debug information:
@@ -172,7 +169,7 @@ void CKernel::WriteLatencyRngTest() {
       blockGenerated = totalGenerated;
     }
     //CLogger::Get()->Write(FromMeasure, LogNotice, "%d", bit1);
-    generated[idxBits] = '0' + bit1;
+    generated[idxBits] = static_cast<char>('0' + bit1);
     ++idxBits;
     --toGenerate;
   }
@@ -191,7 +188,7 @@ void CKernel::WriteLatencyRngTest() {
   CString fileName = GetFreeFile(DRIVE FILENAME_BITS);
   FRESULT Result = f_open(&File, fileName, FA_WRITE | FA_CREATE_ALWAYS);
   if (Result != FR_OK) {
-    m_Logger.Write(FromKernel, LogPanic, "Cannot create file: %s (%d)", (const char *) fileName, Result);
+    m_Logger.Write(FromKernel, LogPanic, "Cannot create file: %s (%d)", fileName, Result);
   }
   unsigned nBytesWritten;
   Result = f_write(&File, generated, totalToGenerate, &nBytesWritten);
@@ -209,12 +206,12 @@ void CKernel::WriteLatencyRngTest() {
   fileName = GetFreeFile(DRIVE FILENAME_DEBUG);
   Result = f_open(&File, fileName, FA_WRITE | FA_CREATE_ALWAYS);
   if (Result != FR_OK) {
-    m_Logger.Write(FromKernel, LogPanic, "Cannot create file: %s (%d)", (const char *) fileName, Result);
+    m_Logger.Write(FromKernel, LogPanic, "Cannot create file: %s (%d)", fileName, Result);
   }
   CString Msg;
   for (int nDebug = 0; nDebug < totalToGenerate / debugSteps; ++nDebug) {
     Msg.Format("%lld µs, %d\n", debugTimes[nDebug], debugBits[nDebug]);
-    Result = f_write(&File, (const char *) Msg, Msg.GetLength(), &nBytesWritten);
+    Result = f_write(&File, Msg, Msg.GetLength(), &nBytesWritten);
     if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
       m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
       break;
@@ -223,7 +220,7 @@ void CKernel::WriteLatencyRngTest() {
 
   Msg.Format("\nTime needed: %lld µs\nTotal bits generated: %d\n",
              newUptime - start, totalGenerated);
-  Result = f_write(&File, (const char *) Msg, Msg.GetLength(), &nBytesWritten);
+  Result = f_write(&File, Msg, Msg.GetLength(), &nBytesWritten);
   if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
     m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
   }

@@ -14,7 +14,6 @@
 #include <circle/timer.h>
 #include <circle/logger.h>
 #include <circle/spimaster.h>
-#include <circle/spimasteraux.h>
 #include <circle/types.h>
 #include <SDCard/emmc.h>
 #include <fatfs/ff.h>
@@ -25,7 +24,7 @@
 #define SPI_CPHA               0
 #define SPI_CHIP_SELECT        0             // 0 or 1, or 2 (for SPI1)
 
-static const char FromKernel[] = "kernel";
+static constexpr char FromKernel[] = "kernel";
 
 enum TShutdownMode {
   ShutdownNone,
@@ -39,15 +38,15 @@ public:
 
   ~CKernel();
 
-  boolean Initialize();
+  bool Initialize();
 
   TShutdownMode Run();
 
   // Helper functions (TODO: Maybe move to own lib?)
 
-  static bool FileExists(const char *path);
+  static bool FileExists(const char* path);
 
-  static CString GetFreeFile(const char *pattern);
+  static CString GetFreeFile(const char* pattern);
 
   static u64 GetClockTicksHiLo();
 
@@ -69,7 +68,7 @@ public:
 
   static MemoryStatusRegister ParseStatusRegister(u8 statusRegister);
 
-  void ReadStatusRegister(MemoryStatusRegister *statusRegister);
+  void ReadStatusRegister(MemoryStatusRegister* statusRegister);
 
   void SetWriteEnableLatch(bool check_register);
 

@@ -4,7 +4,7 @@
 #include "kernel.h"
 #include <circle/startup.h>
 
-int main(void) {
+int main() {
   // cannot return here because some destructors used in CKernel are not implemented
 
   CKernel Kernel;
@@ -13,16 +13,16 @@ int main(void) {
     return EXIT_HALT;
   }
 
-  TShutdownMode ShutdownMode = Kernel.Run();
+  const TShutdownMode ShutdownMode = Kernel.Run();
 
   switch (ShutdownMode) {
-    case ShutdownReboot:
-      reboot();
-      return EXIT_REBOOT;
+  case ShutdownReboot:
+    reboot();
+    return EXIT_REBOOT;
 
-    case ShutdownHalt:
-    default:
-      halt();
-      return EXIT_HALT;
+  case ShutdownHalt:
+  default:
+    halt();
+    return EXIT_HALT;
   }
 }
