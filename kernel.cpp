@@ -78,6 +78,11 @@ CString CKernel::GetFreeFile(const char* pattern) {
   }
 }
 
+/**
+ * \brief Version of CTimer::GetClockTicks which (usually) does not wrap.
+ * Ported from LowLevelDevel's bare metal RPi kernel.
+ * \return The current clock ticks of a 1 MHz counter
+ */
 u64 CKernel::GetClockTicksHiLo() {
   PeripheralEntry();
 
@@ -96,7 +101,7 @@ u64 CKernel::GetClockTicksHiLo() {
 }
 
 void CKernel::IndicateStop() {
-  m_ActLED.Blink(1000000000);
+  m_ActLED.Blink(1000000000); // Will pretty much never stop
 }
 
 u64 CKernel::RandomWriteLatency() {
@@ -134,7 +139,17 @@ bool CKernel::WriteLatencyRandomBit() {
 }
 
 void CKernel::WriteLatencyRngTest() {
-  int idxBits = 0, idxDebug = 0;
+#define FILENAME_BITS MEM_NAME_SIMPLE "_%d_bits.log"
+  const CString fileNameBits = GetFreeFile(DRIVE FILENAME_BITS);
+  const char* cFileNameBits = fileNameBits;
+  m_Logger.Write(FromKernel, LogNotice, "Choosing bits file %s", cFileNameBits);
+#define FILENAME_DEBUG MEM_NAME_SIMPLE "_%d_debug.log"
+  const CString fileNameDebug = GetFreeFile(DRIVE FILENAME_DEBUG);
+  const char* cFileNameDebug = fileNameDebug;
+  m_Logger.Write(FromKernel, LogNotice, "Choosing debug file %s", cFileNameDebug);
+
+  FIL file;
+  int idxDebug = 0;
   u64 newUptime;
 
   constexpr int totalToGenerate = 500000;
@@ -169,8 +184,7 @@ void CKernel::WriteLatencyRngTest() {
       blockGenerated = totalGenerated;
     }
     //CLogger::Get()->Write(FromMeasure, LogNotice, "%d", bit1);
-    generated[idxBits] = static_cast<char>('0' + bit1);
-    ++idxBits;
+    generated[totalToGenerate - toGenerate] = static_cast<char>('0' + bit1);
     --toGenerate;
   }
 
@@ -183,35 +197,30 @@ void CKernel::WriteLatencyRngTest() {
   CLogger::Get()->Write(FromKernel, LogNotice, "Time needed: %lld µs", newUptime - start);
   CLogger::Get()->Write(FromKernel, LogNotice, "Total bits generated: %d\n", totalGenerated);
 
-#define FILENAME_BITS "bits_%d.log"
-  FIL File;
-  CString fileName = GetFreeFile(DRIVE FILENAME_BITS);
-  FRESULT Result = f_open(&File, fileName, FA_WRITE | FA_CREATE_ALWAYS);
+  FRESULT Result = f_open(&file, fileNameBits, FA_WRITE | FA_CREATE_ALWAYS);
   if (Result != FR_OK) {
-    m_Logger.Write(FromKernel, LogPanic, "Cannot create file: %s (%d)", fileName, Result);
+    m_Logger.Write(FromKernel, LogPanic, "Cannot create file: %s (%d)", cFileNameBits, Result);
   }
   unsigned nBytesWritten;
-  Result = f_write(&File, generated, totalToGenerate, &nBytesWritten);
+  Result = f_write(&file, generated, totalToGenerate, &nBytesWritten);
   if (Result != FR_OK || nBytesWritten != totalToGenerate) {
     m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
   }
-  Result = f_close(&File);
+  Result = f_close(&file);
   if (Result == FR_OK) {
-    m_Logger.Write(FromKernel, LogNotice, "Successfully written bits to SD card!");
+    m_Logger.Write(FromKernel, LogNotice, "Successfully written bits to %s!", cFileNameBits);
   } else {
     m_Logger.Write(FromKernel, LogPanic, "Cannot close bits file (%d)", Result);
   }
 
-#define FILENAME_DEBUG "debug_%d.log"
-  fileName = GetFreeFile(DRIVE FILENAME_DEBUG);
-  Result = f_open(&File, fileName, FA_WRITE | FA_CREATE_ALWAYS);
+  Result = f_open(&file, fileNameDebug, FA_WRITE | FA_CREATE_ALWAYS);
   if (Result != FR_OK) {
-    m_Logger.Write(FromKernel, LogPanic, "Cannot create file: %s (%d)", fileName, Result);
+    m_Logger.Write(FromKernel, LogPanic, "Cannot create file: %s (%d)", cFileNameDebug, Result);
   }
   CString Msg;
   for (int nDebug = 0; nDebug < totalToGenerate / debugSteps; ++nDebug) {
     Msg.Format("%lld µs, %d\n", debugTimes[nDebug], debugBits[nDebug]);
-    Result = f_write(&File, Msg, Msg.GetLength(), &nBytesWritten);
+    Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
     if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
       m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
       break;
@@ -220,14 +229,14 @@ void CKernel::WriteLatencyRngTest() {
 
   Msg.Format("\nTime needed: %lld µs\nTotal bits generated: %d\n",
              newUptime - start, totalGenerated);
-  Result = f_write(&File, Msg, Msg.GetLength(), &nBytesWritten);
+  Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
   if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
     m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
   }
 
-  Result = f_close(&File);
+  Result = f_close(&file);
   if (Result == FR_OK) {
-    m_Logger.Write(FromKernel, LogNotice, "Successfully written debug data to SD card!");
+    m_Logger.Write(FromKernel, LogNotice, "Successfully written debug data to %s!", cFileNameDebug);
   } else {
     m_Logger.Write(FromKernel, LogPanic, "Cannot close debug data file (%d)", Result);
   }
