@@ -11,12 +11,12 @@ void CKernel::ResetWriteEnable() {
 
 MemoryStatusRegister CKernel::ParseStatusRegister(const u8 statusRegister) {
   return (MemoryStatusRegister){
-    static_cast<u8>((statusRegister & 128) >> 7),
-    static_cast<u8>((statusRegister & 64) >> 6),
-    static_cast<u8>((statusRegister & 32) >> 5),
-    static_cast<u8>((statusRegister & 12) >> 2),
-    static_cast<u8>((statusRegister & 2) >> 1),
-    static_cast<u8>((statusRegister & 1))
+    static_cast<u8>((statusRegister & 0b10000000) >> 7),
+    static_cast<u8>((statusRegister & 0b01000000) >> 6),
+    static_cast<u8>((statusRegister & 0b00100000) >> 5),
+    static_cast<u8>((statusRegister & 0b00001100) >> 2),
+    static_cast<u8>((statusRegister & 0b00000010) >> 1),
+    static_cast<u8>((statusRegister & 0b00000001))
   };
 }
 
@@ -58,10 +58,10 @@ u64 CKernel::WIPPollingCycles() {
 void CKernel::MemWrite(u32 adr, u8 value) {
 #if MEM_ADR_SEND == 2
   u8 write_data[] = {
-      ReRAM_WR,
-      static_cast<u8>((adr >> 8) & 0xFF),
-      static_cast<u8>((adr >> 0) & 0xFF),
-      value
+    ReRAM_WR,
+    static_cast<u8>(adr >> 8 & 0xFF),
+    static_cast<u8>(adr >> 0 & 0xFF),
+    value
   };
 #elif MEM_ADR_SEND == 3
   u8 write_data[] = {

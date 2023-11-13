@@ -1,8 +1,4 @@
-//
-// kernel.h
-//
-#ifndef _kernel_h
-#define _kernel_h
+#pragma once
 
 #include <circle/actled.h>
 #include <circle/bcmrandom.h>
@@ -92,5 +88,3 @@ private:
   CEMMCDevice m_EMMC;
   FATFS m_FileSystem;
 };
-
-#endif

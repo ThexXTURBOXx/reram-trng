@@ -1,5 +1,4 @@
-#ifndef CIRCLE_MT19937AR_H
-#define CIRCLE_MT19937AR_H
+#pragma once
 
 #include <circle/types.h>
 
@@ -33,5 +32,3 @@ long genrand_int31();
 
 /* generates a random number on [min,max)-interval */
 u32 genrand_range(long min, long max);
-
-#endif //CIRCLE_MT19937AR_H

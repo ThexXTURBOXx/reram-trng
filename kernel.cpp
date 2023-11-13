@@ -89,7 +89,7 @@ u64 CKernel::GetClockTicksHiLo() {
   u32 hi = read32(ARM_SYSTIMER_CHI);
   u32 lo = read32(ARM_SYSTIMER_CLO);
 
-  // double check hi value didn't change after setting it...
+  // double check hi value didn't change when retrieving lo...
   if (hi != read32(ARM_SYSTIMER_CHI)) {
     hi = read32(ARM_SYSTIMER_CHI);
     lo = read32(ARM_SYSTIMER_CLO);
@@ -108,7 +108,7 @@ u64 CKernel::RandomWriteLatency() {
   // These could also be fixed
 
   // Use HW RNG as "seed"
-  /*int addr = (int) m_Random.GetNumber() % 512;
+  /*int addr = (int) m_Random.GetNumber() % MEM_SIZE_ADR;
   int num1 = (int) m_Random.GetNumber() % 256;
   int num2 = (int) m_Random.GetNumber() % 256;*/
 
