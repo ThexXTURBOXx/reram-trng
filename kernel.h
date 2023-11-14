@@ -38,13 +38,11 @@ public:
 
   TShutdownMode Run();
 
-  // Helper functions (TODO: Maybe move to own lib?)
+  // Helper functions - TODO: Maybe move to own lib?
 
   static bool FileExists(const char* path);
 
   static CString GetFreeFile(const char* pattern);
-
-  static u64 GetClockTicksHiLo();
 
   // Kernel functionality
 

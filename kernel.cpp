@@ -78,28 +78,6 @@ CString CKernel::GetFreeFile(const char* pattern) {
   }
 }
 
-/**
- * \brief Version of CTimer::GetClockTicks which (usually) does not wrap.
- * Ported from LowLevelDevel's bare metal RPi kernel.
- * \return The current clock ticks of a 1 MHz counter
- */
-u64 CKernel::GetClockTicksHiLo() {
-  PeripheralEntry();
-
-  u32 hi = read32(ARM_SYSTIMER_CHI);
-  u32 lo = read32(ARM_SYSTIMER_CLO);
-
-  // double check hi value didn't change when retrieving lo...
-  if (hi != read32(ARM_SYSTIMER_CHI)) {
-    hi = read32(ARM_SYSTIMER_CHI);
-    lo = read32(ARM_SYSTIMER_CLO);
-  }
-
-  PeripheralExit();
-
-  return static_cast<u64>(hi) << 32 | lo;
-}
-
 void CKernel::IndicateStop() {
   m_ActLED.Blink(1000000000); // Will pretty much never stop
 }
@@ -161,7 +139,7 @@ void CKernel::WriteLatencyRngTest() {
 
   int toGenerate = totalToGenerate;
   int totalGenerated = 0;
-  const u64 start = GetClockTicksHiLo();
+  const u64 start = CTimer::GetClockTicks64();
   u64 blockStart = start;
   int blockGenerated = toGenerate;
   while (toGenerate > 0) {
@@ -173,7 +151,7 @@ void CKernel::WriteLatencyRngTest() {
     // For more debug information:
     if (toGenerate % debugSteps == 0) {
       if (toGenerate < totalToGenerate) {
-        newUptime = GetClockTicksHiLo();
+        newUptime = CTimer::GetClockTicks64();
         debugTimes[idxDebug] = newUptime - blockStart;
         debugBits[idxDebug] = totalGenerated - blockGenerated;
         CLogger::Get()->Write(FromKernel, LogNotice, "%lld µs, %d",
@@ -188,7 +166,7 @@ void CKernel::WriteLatencyRngTest() {
     --toGenerate;
   }
 
-  newUptime = GetClockTicksHiLo();
+  newUptime = CTimer::GetClockTicks64();
   debugTimes[idxDebug] = newUptime - blockStart;
   debugBits[idxDebug] = totalGenerated - blockGenerated;
   CLogger::Get()->Write(FromKernel, LogNotice, "%lld µs, %d",
