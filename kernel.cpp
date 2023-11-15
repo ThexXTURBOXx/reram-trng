@@ -86,9 +86,9 @@ u64 CKernel::RandomWriteLatency() {
   // These could also be fixed
 
   // Use HW RNG as "seed"
-  /*int addr = (int) m_Random.GetNumber() % MEM_SIZE_ADR;
-  int num1 = (int) m_Random.GetNumber() % 256;
-  int num2 = (int) m_Random.GetNumber() % 256;*/
+  /*const int addr = static_cast<int>(m_Random.GetNumber() % MEM_SIZE_ADR);
+  const int num1 = static_cast<int>(m_Random.GetNumber() % 256);
+  const int num2 = static_cast<int>(m_Random.GetNumber() % 256);*/
 
   // Use MT19937AR as "seed"
   const int addr = static_cast<int>(genrand_range(0, MEM_SIZE_ADR));
