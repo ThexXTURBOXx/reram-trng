@@ -28,6 +28,15 @@ enum TShutdownMode {
   ShutdownReboot
 };
 
+enum MeasurementResult {
+  // Everything went fine
+  Okay,
+  // Was probably able to still write data
+  FailedPartially,
+  // Did not do anything
+  FailedTotally
+};
+
 class CKernel {
 public:
   CKernel();
@@ -46,13 +55,15 @@ public:
 
   // Kernel functionality
 
-  void IndicateStop();
+  void IndicateStop(MeasurementResult);
 
   u64 RandomWriteLatency();
 
   bool WriteLatencyRandomBit();
 
-  void WriteLatencyRngTest();
+  MeasurementResult ExtractSingleBit(bool& bit, int& totalGenerated, int tries = -1);
+
+  MeasurementResult WriteLatencyRngTest();
 
   // SPI Memory
 

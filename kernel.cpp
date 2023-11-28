@@ -52,14 +52,28 @@ TShutdownMode CKernel::Run() {
   m_Logger.Write(FromKernel, LogNotice, "Compile time: " __DATE__ " " __TIME__);
   m_Logger.Write(FromKernel, LogNotice, "Memory: %s, SPI Frequency: %lld", MEM_NAME, SPI_FREQ);
 
+  // Do dummy measurement
+  int raw = 0;
+  bool bit;
+  MeasurementResult result = ExtractSingleBit(bit, raw, 1000);
+  if (result == Okay) {
+    m_Logger.Write(FromKernel, LogNotice, "Successfully generated %d with %d raw bits!", bit, raw);
+    m_ActLED.Blink(5, 100, 100);
+  } else {
+    m_Logger.Write(FromKernel, LogNotice, "Failed to generate single bit... Shutting down...");
+    IndicateStop(result);
+    return ShutdownNone;
+  }
+
   // Mount file system
   if (f_mount(&m_FileSystem, DRIVE, 1) != FR_OK) {
     m_Logger.Write(FromKernel, LogPanic, "Cannot mount drive: %s", DRIVE);
+    IndicateStop(FailedTotally);
+  } else {
+    // Do measurements only if successful
+    result = WriteLatencyRngTest();
+    IndicateStop(result);
   }
-
-  WriteLatencyRngTest();
-
-  IndicateStop();
 
   return ShutdownNone;
 }
@@ -78,8 +92,18 @@ CString CKernel::GetFreeFile(const char* pattern) {
   }
 }
 
-void CKernel::IndicateStop() {
-  m_ActLED.Blink(1000000000); // Will pretty much never stop
+void CKernel::IndicateStop(const MeasurementResult result) {
+  switch (result) {
+  case Okay:
+    m_ActLED.Blink(1000000000); // Will pretty much never stop
+    break;
+  case FailedPartially:
+    m_ActLED.Blink(1000000000, 2000, 2000);
+    break;
+  case FailedTotally:
+    m_ActLED.On();
+    break;
+  }
 }
 
 u64 CKernel::RandomWriteLatency() {
@@ -116,7 +140,23 @@ bool CKernel::WriteLatencyRandomBit() {
   return static_cast<bool>(RandomWriteLatency() & 1);
 }
 
-void CKernel::WriteLatencyRngTest() {
+MeasurementResult CKernel::ExtractSingleBit(bool& bit, int& totalGenerated, int tries) {
+  while (tries < 0 || tries-- > 0) {
+    // Very basic implementation of von Neumann extractor
+    const bool bit1 = WriteLatencyRandomBit();
+    const bool bit2 = WriteLatencyRandomBit();
+    totalGenerated += 2;
+    if (bit1 != bit2) {
+      bit = bit1;
+      return Okay;
+    }
+  }
+  return FailedTotally;
+}
+
+MeasurementResult CKernel::WriteLatencyRngTest() {
+  MeasurementResult result = Okay;
+
 #define FILENAME_BITS MEM_NAME_SIMPLE "_%d_bits.log"
   const CString fileNameBits = GetFreeFile(DRIVE FILENAME_BITS);
   const char* cFileNameBits = fileNameBits;
@@ -137,17 +177,14 @@ void CKernel::WriteLatencyRngTest() {
   u64 debugTimes[totalToGenerate / debugSteps];
   int debugBits[totalToGenerate / debugSteps];
 
+  bool bit;
   int toGenerate = totalToGenerate;
   int totalGenerated = 0;
   const u64 start = CTimer::GetClockTicks64();
   u64 blockStart = start;
   int blockGenerated = toGenerate;
   while (toGenerate > 0) {
-    // Very basic implementation of von Neumann extractor
-    const bool bit1 = WriteLatencyRandomBit();
-    const bool bit2 = WriteLatencyRandomBit();
-    totalGenerated += 2;
-    if (bit1 == bit2) continue;
+    ExtractSingleBit(bit, totalGenerated);
     // For more debug information:
     if (toGenerate % debugSteps == 0) {
       if (toGenerate < totalToGenerate) {
@@ -162,7 +199,7 @@ void CKernel::WriteLatencyRngTest() {
       blockGenerated = totalGenerated;
     }
     //CLogger::Get()->Write(FromMeasure, LogNotice, "%d", bit1);
-    generated[totalToGenerate - toGenerate] = static_cast<char>('0' + bit1);
+    generated[totalToGenerate - toGenerate] = static_cast<char>('0' + bit);
     --toGenerate;
   }
 
@@ -178,22 +215,26 @@ void CKernel::WriteLatencyRngTest() {
   FRESULT Result = f_open(&file, fileNameBits, FA_WRITE | FA_CREATE_ALWAYS);
   if (Result != FR_OK) {
     m_Logger.Write(FromKernel, LogPanic, "Cannot create file: %s (%d)", cFileNameBits, Result);
+    result = FailedTotally;
   }
   unsigned nBytesWritten;
   Result = f_write(&file, generated, totalToGenerate, &nBytesWritten);
   if (Result != FR_OK || nBytesWritten != totalToGenerate) {
     m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
+    result = FailedTotally;
   }
   Result = f_close(&file);
   if (Result == FR_OK) {
     m_Logger.Write(FromKernel, LogNotice, "Successfully written bits to %s!", cFileNameBits);
   } else {
     m_Logger.Write(FromKernel, LogPanic, "Cannot close bits file (%d)", Result);
+    result = FailedPartially;
   }
 
   Result = f_open(&file, fileNameDebug, FA_WRITE | FA_CREATE_ALWAYS);
   if (Result != FR_OK) {
     m_Logger.Write(FromKernel, LogPanic, "Cannot create file: %s (%d)", cFileNameDebug, Result);
+    result = FailedPartially;
   }
   CString Msg;
   for (int nDebug = 0; nDebug < totalToGenerate / debugSteps; ++nDebug) {
@@ -201,6 +242,7 @@ void CKernel::WriteLatencyRngTest() {
     Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
     if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
       m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
+      result = FailedPartially;
       break;
     }
   }
@@ -210,6 +252,7 @@ void CKernel::WriteLatencyRngTest() {
   Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
   if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
     m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
+    result = FailedPartially;
   }
 
   Result = f_close(&file);
@@ -217,5 +260,8 @@ void CKernel::WriteLatencyRngTest() {
     m_Logger.Write(FromKernel, LogNotice, "Successfully written debug data to %s!", cFileNameDebug);
   } else {
     m_Logger.Write(FromKernel, LogPanic, "Cannot close debug data file (%d)", Result);
+    result = FailedPartially;
   }
+
+  return result;
 }
