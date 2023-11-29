@@ -55,7 +55,7 @@ TShutdownMode CKernel::Run() {
   // Do dummy measurement
   int raw = 0;
   bool bit;
-  MeasurementResult result = ExtractSingleBit(bit, raw, 1000);
+  MeasurementResult result = ExtractSingleBit(bit, raw, 1000, 1000);
   if (result == Okay) {
     m_Logger.Write(FromKernel, LogNotice, "Successfully generated %d with %d raw bits!", bit, raw);
     m_ActLED.Blink(5, 100, 100);
@@ -106,7 +106,7 @@ void CKernel::IndicateStop(const MeasurementResult result) {
   }
 }
 
-u64 CKernel::RandomWriteLatency() {
+MeasurementResult CKernel::RandomWriteLatency(u64& write_latency, int timeout) {
   // These could also be fixed
 
   // Use HW RNG as "seed"
@@ -122,29 +122,34 @@ u64 CKernel::RandomWriteLatency() {
   // Write first value
   MemWrite(addr, num1);
 
-  // Wait until the WEL latch turns reset
-  WIPPollingCycles();
+  // Wait until the WIP bit is clear
+  MeasurementResult result = WIPPollingCycles(write_latency);
+  if (result != Okay) return result;
 
   // Overwrite value
   MemWrite(addr, num2);
 
-  // Measure write latency
-  const u64 write_latency = WIPPollingCycles();
-
-  // This is the rather random latency
-  return write_latency;
+  // write_latency should be rather random now
+  result = WIPPollingCycles(write_latency);
+  return result;
 }
 
-bool CKernel::WriteLatencyRandomBit() {
+MeasurementResult CKernel::WriteLatencyRandomBit(bool& bit, const int timeout) {
   // Extract "random" LSB
-  return static_cast<bool>(RandomWriteLatency() & 1);
+  u64 write_latency;
+  const MeasurementResult result = RandomWriteLatency(write_latency, timeout);
+  bit = static_cast<bool>(write_latency & 1);
+  return result;
 }
 
-MeasurementResult CKernel::ExtractSingleBit(bool& bit, int& totalGenerated, int tries) {
+MeasurementResult CKernel::ExtractSingleBit(bool& bit, int& totalGenerated, int tries, const int timeout) {
+  bool bit1, bit2;
   while (tries < 0 || tries-- > 0) {
     // Very basic implementation of von Neumann extractor
-    const bool bit1 = WriteLatencyRandomBit();
-    const bool bit2 = WriteLatencyRandomBit();
+    MeasurementResult result = WriteLatencyRandomBit(bit1, timeout);
+    if (result != Okay) continue;
+    result = WriteLatencyRandomBit(bit2, timeout);
+    if (result != Okay) continue;
     totalGenerated += 2;
     if (bit1 != bit2) {
       bit = bit1;

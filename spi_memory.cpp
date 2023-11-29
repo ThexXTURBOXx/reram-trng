@@ -47,12 +47,16 @@ void CKernel::SetWriteEnableLatch(const bool check_register) {
   }
 }
 
-u64 CKernel::WIPPollingCycles() {
+MeasurementResult CKernel::WIPPollingCycles(u64& cycles, const int timeout) {
   MemoryStatusRegister statusRegister;
-  for (u64 cycles = 1;; ++cycles) {
+  for (u64 i = 1; timeout < 0 || i < static_cast<u64>(timeout); ++i) {
     ReadStatusRegister(&statusRegister);
-    if (!statusRegister.WriteInProgressBit) return cycles;
+    if (!statusRegister.WriteInProgressBit) {
+      cycles = i;
+      return Okay;
+    }
   }
+  return FailedTotally;
 }
 
 void CKernel::MemWrite(u32 adr, u8 value) {

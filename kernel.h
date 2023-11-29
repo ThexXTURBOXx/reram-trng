@@ -57,11 +57,11 @@ public:
 
   void IndicateStop(MeasurementResult);
 
-  u64 RandomWriteLatency();
+  MeasurementResult RandomWriteLatency(u64& write_latency, int timeout = -1);
 
-  bool WriteLatencyRandomBit();
+  MeasurementResult WriteLatencyRandomBit(bool& bit, int timeout = -1);
 
-  MeasurementResult ExtractSingleBit(bool& bit, int& totalGenerated, int tries = -1);
+  MeasurementResult ExtractSingleBit(bool& bit, int& totalGenerated, int tries = -1, int timeout = -1);
 
   MeasurementResult WriteLatencyRngTest();
 
@@ -77,7 +77,7 @@ public:
 
   void SetWriteEnableLatch(bool check_register);
 
-  u64 WIPPollingCycles();
+  MeasurementResult WIPPollingCycles(u64& cycles, int timeout = -1);
 
   void MemWrite(u32 adr, u8 value);
 
