@@ -57,7 +57,7 @@ TShutdownMode CKernel::Run() {
   bool bit;
   MeasurementResult result = ExtractSingleBit(bit, raw, 1000, 1000);
   if (result == Okay) {
-    m_Logger.Write(FromKernel, LogNotice, "Successfully generated %d with %d raw bits!", bit, raw);
+    m_Logger.Write(FromKernel, LogNotice, "Successfully generated bit %d with %d raw bits!", bit, raw);
     m_ActLED.Blink(5, 100, 100);
   } else {
     m_Logger.Write(FromKernel, LogNotice, "Failed to generate single bit... Shutting down...");
@@ -84,11 +84,9 @@ bool CKernel::FileExists(const char* path) {
 
 CString CKernel::GetFreeFile(const char* pattern) {
   CString Msg;
-  int i = 0;
-  while (true) {
+  for (int i = 0; ; ++i) {
     Msg.Format(pattern, i);
     if (!FileExists(Msg)) return Msg;
-    ++i;
   }
 }
 
