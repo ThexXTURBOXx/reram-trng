@@ -104,7 +104,7 @@ void CKernel::IndicateStop(const MeasurementResult result) {
   }
 }
 
-MeasurementResult CKernel::RandomWriteLatency(u64& write_latency, int timeout) {
+MeasurementResult CKernel::RandomWriteLatency(u64& write_latency, const int timeout) {
   // These could also be fixed
 
   // Use HW RNG as "seed"
@@ -121,15 +121,14 @@ MeasurementResult CKernel::RandomWriteLatency(u64& write_latency, int timeout) {
   MemWrite(addr, num1);
 
   // Wait until the WIP bit is clear
-  MeasurementResult result = WIPPollingCycles(write_latency);
+  const MeasurementResult result = WIPPollingCycles(write_latency, timeout);
   if (result != Okay) return result;
 
   // Overwrite value
   MemWrite(addr, num2);
 
   // write_latency should be rather random now
-  result = WIPPollingCycles(write_latency);
-  return result;
+  return WIPPollingCycles(write_latency, timeout);
 }
 
 MeasurementResult CKernel::WriteLatencyRandomBit(bool& bit, const int timeout) {
