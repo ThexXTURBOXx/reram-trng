@@ -159,7 +159,7 @@ MeasurementResult CKernel::ExtractSingleBit(bool& bit, int& totalGenerated, int 
 MeasurementResult CKernel::BurnOut(const int addr, const int writes, const int timeout) {
   u64 temp;
   for (int i = 0; i < writes; ++i) {
-    const MeasurementResult result = MemWriteAndPoll(temp, addr, genrand_range(0, 256), timeout);
+    const MeasurementResult result = MemWriteAndPoll(temp, addr, m_Random.GetNumber() % 256, timeout);
     if (result != Okay) return result;
   }
   return Okay;
