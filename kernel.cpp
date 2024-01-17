@@ -307,9 +307,9 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   constexpr int tries1 = 20;
   constexpr int tries2 = 4;
 
-  constexpr int num1s[] = {0x00, 0xff, 0xaa, 0x55, 0x73, 0xfc, 0xc5, 0x1c, 0x9d, 0x4c};
-  constexpr int num2s[] = {0xff, 0x00, 0x55, 0xaa, 0x73, 0x36, 0x29, 0x9f, 0x1b, 0xd8};
-  constexpr int bytes = sizeof(num1s) / sizeof(int);
+  constexpr u8 num1s[] = {0x00, 0xff, 0xaa, 0x55, 0x73, 0xfc, 0xc5, 0x1c, 0x9d, 0x4c};
+  constexpr u8 num2s[] = {0xff, 0x00, 0x55, 0xaa, 0x73, 0x36, 0x29, 0x9f, 0x1b, 0xd8};
+  constexpr int bytes = sizeof(num1s) / sizeof(u8);
 
   constexpr int burnt1[] = {1, 9022, 26978, 44054, 60772};
   constexpr int sane1[] = {3609, 17625, 29463, 48071, 58244};
@@ -356,8 +356,10 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   for (const int addr : burnt2) {
     for (int num1 = 0; num1 < 256; ++num1) {
       for (int num2 = 0; num2 < 256; ++num2) {
-        RandomWriteLatency(latency, addr, num1, num1);
-        burntTimes2[idx++] = latency;
+        for (int k = 0; k < tries2; ++k) {
+          RandomWriteLatency(latency, addr, num1, num2);
+          burntTimes2[idx++] = latency;
+        }
       }
     }
   }
@@ -367,8 +369,10 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   for (const int addr : sane2) {
     for (int num1 = 0; num1 < 256; ++num1) {
       for (int num2 = 0; num2 < 256; ++num2) {
-        RandomWriteLatency(latency, addr, num1, num1);
-        saneTimes2[idx++] = latency;
+        for (int k = 0; k < tries2; ++k) {
+          RandomWriteLatency(latency, addr, num1, num2);
+          saneTimes2[idx++] = latency;
+        }
       }
     }
   }
@@ -384,14 +388,13 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   for (const int addr : burnt1) {
     for (int j = 0; j < bytes; ++j) {
       for (int k = 0; k < tries1; ++k) {
-        Msg.Format("B,%d,%d,%d,%d\n", addr, num1s[j], num2s[j], burntTimes1[idx]);
+        Msg.Format("B,%d,%d,%d,%d\n", addr, num1s[j], num2s[j], burntTimes1[idx++]);
         Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
         if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
           m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
           result = FailedPartially;
           break;
         }
-        ++idx;
       }
     }
   }
@@ -401,14 +404,13 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   for (const int addr : sane1) {
     for (int j = 0; j < bytes; ++j) {
       for (int k = 0; k < tries1; ++k) {
-        Msg.Format("S,%d,%d,%d,%d\n", addr, num1s[j], num2s[j], saneTimes1[idx]);
+        Msg.Format("S,%d,%d,%d,%d\n", addr, num1s[j], num2s[j], saneTimes1[idx++]);
         Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
         if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
           m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
           result = FailedPartially;
           break;
         }
-        ++idx;
       }
     }
   }
@@ -418,14 +420,13 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   for (const int addr : burnt2) {
     for (int num1 = 0; num1 < 256; ++num1) {
       for (int num2 = 0; num2 < 256; ++num2) {
-        Msg.Format("B,%d,%d,%d,%d\n", addr, num1, num2, burntTimes2[idx]);
+        Msg.Format("B,%d,%d,%d,%d\n", addr, num1, num2, burntTimes2[idx++]);
         Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
         if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
           m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
           result = FailedPartially;
           break;
         }
-        ++idx;
       }
     }
   }
@@ -435,14 +436,13 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   for (const int addr : sane2) {
     for (int num1 = 0; num1 < 256; ++num1) {
       for (int num2 = 0; num2 < 256; ++num2) {
-        Msg.Format("S,%d,%d,%d,%d\n", addr, num1, num2, saneTimes2[idx]);
+        Msg.Format("S,%d,%d,%d,%d\n", addr, num1, num2, saneTimes2[idx++]);
         Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
         if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
           m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
           result = FailedPartially;
           break;
         }
-        ++idx;
       }
     }
   }

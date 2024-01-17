@@ -23,7 +23,7 @@ MemoryStatusRegister CKernel::ParseStatusRegister(const u8 statusRegister) {
 void CKernel::ReadStatusRegister(MemoryStatusRegister* statusRegister) {
   constexpr u8 data[] = {ReRAM_RDSR, 0};
   u8 reg[] = {0, 0};
-  constexpr int len = sizeof(data);
+  constexpr int len = sizeof(data) / sizeof(u8);
   if (m_SPIMaster.WriteRead(SPI_CHIP_SELECT, &data, reg, len) != len) {
     CLogger::Get()->Write(FromKernel, LogPanic, "SPI write error");
   }
@@ -31,10 +31,10 @@ void CKernel::ReadStatusRegister(MemoryStatusRegister* statusRegister) {
 }
 
 void CKernel::SetWriteEnableLatch(const bool check_register) {
-  constexpr u8 data = ReRAM_WREN;
-  constexpr int data_len = sizeof(data);
+  constexpr u8 data[] = {ReRAM_WREN};
+  constexpr int data_len = sizeof(data) / sizeof(u8);
   // Only needed for WRSR: SetWriteEnable();
-  if (m_SPIMaster.Write(SPI_CHIP_SELECT, &data, data_len) != data_len) {
+  if (m_SPIMaster.Write(SPI_CHIP_SELECT, data, data_len) != data_len) {
     CLogger::Get()->Write(FromKernel, LogPanic, "SPI write error");
   }
   // Only needed for WRSR: ResetWriteEnable();
@@ -76,7 +76,7 @@ void CKernel::MemWrite(u32 adr, u8 value) {
     value
   };
 #endif
-  constexpr int write_len = sizeof(write_data);
+  constexpr int write_len = sizeof(write_data) / sizeof(u8);
 
   SetWriteEnableLatch(false);
   // Only needed for WRSR: SetWriteEnable();
@@ -105,7 +105,7 @@ u8 CKernel::MemRead(u32 adr) {
 #endif
   u8 read_data[1 + MEM_ADR_SEND + 1];
 
-  constexpr int len = sizeof(write_data);
+  constexpr int len = sizeof(write_data) / sizeof(u8);
 
   if (m_SPIMaster.WriteRead(SPI_CHIP_SELECT, write_data, read_data, len) != len) {
     CLogger::Get()->Write(FromKernel, LogPanic, "SPI write error");
