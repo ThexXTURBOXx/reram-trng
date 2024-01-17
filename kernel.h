@@ -65,6 +65,8 @@ public:
 
   MeasurementResult ExtractSingleBit(bool& bit, int& totalGenerated, int tries = -1, int timeout = -1);
 
+  MeasurementResult IsBurntOut(bool& burntOut, int addr, int writes = 10, int timeout = -1);
+
   /**
    * WARNING! THIS PERMANENTLY DAMAGES THE GIVEN CELL. USE CAREFULLY!
    */

@@ -156,6 +156,21 @@ MeasurementResult CKernel::ExtractSingleBit(bool& bit, int& totalGenerated, int 
   return FailedTotally;
 }
 
+MeasurementResult CKernel::IsBurntOut(bool& burntOut, const int addr, const int writes, const int timeout) {
+  burntOut = false;
+  u64 temp;
+  for (int i = 0; i < writes; ++i) {
+    const u8 expected = m_Random.GetNumber() % 256;
+    const MeasurementResult result = MemWriteAndPoll(temp, addr, expected, timeout);
+    if (result != Okay) return result;
+    if (expected != MemRead(addr)) {
+      burntOut = true;
+      break;
+    }
+  }
+  return Okay;
+}
+
 MeasurementResult CKernel::BurnOut(const int addr, const int writes, const int timeout) {
   u64 temp;
   for (int i = 0; i < writes; ++i) {
