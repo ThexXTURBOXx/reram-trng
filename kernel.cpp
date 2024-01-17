@@ -72,7 +72,9 @@ TShutdownMode CKernel::Run() {
   } else {
     // Do measurements only if successful
     //result = WriteLatencyRngTest();
-    result = WriteLatencyRngTest2();
+    //result = WriteLatencyRngTest2();
+    result = BurnOutCells();
+
     IndicateStop(result);
   }
 
@@ -455,4 +457,39 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   }
 
   return result;
+}
+
+MeasurementResult CKernel::BurnOutCells() {
+  MeasurementResult result;
+
+  // Same cells as in WriteLatencyRngTest2
+  constexpr int sane[] = {3609, 17625, 29463, 48071, 58244, 7541, 24251, 36203, 49382, 60456};
+  constexpr int burnt[] = {1, 9022, 26978, 44054, 60772, 6, 10990, 31987, 54833, 64198};
+
+  bool burntOut;
+
+  for (const int addr : sane) {
+    result = IsBurntOut(burntOut, addr);
+    if (result != Okay) return result;
+    if (burntOut) {
+      CLogger::Get()->Write(FromKernel, LogNotice, "Cell %d burnt out, not good!", addr);
+    } else {
+      CLogger::Get()->Write(FromKernel, LogNotice, "Cell %d sane", addr);
+    }
+  }
+
+  for (const int addr : burnt) {
+    do {
+      result = IsBurntOut(burntOut, addr);
+      if (result != Okay) return result;
+      if (!burntOut) {
+        CLogger::Get()->Write(FromKernel, LogNotice, "Cell %d still sane", addr);
+        result = BurnOut(addr);
+        if (result != Okay) return result;
+      }
+    } while (!burntOut);
+    CLogger::Get()->Write(FromKernel, LogNotice, "Cell %d burnt out", addr);
+  }
+
+  return Okay;
 }

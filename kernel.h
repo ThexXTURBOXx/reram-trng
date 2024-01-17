@@ -76,6 +76,8 @@ public:
 
   MeasurementResult WriteLatencyRngTest2();
 
+  MeasurementResult BurnOutCells();
+
   // SPI Memory
 
   void SetWriteEnable();
