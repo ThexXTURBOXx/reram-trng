@@ -72,6 +72,8 @@ public:
 
   MeasurementResult WriteLatencyRngTest();
 
+  MeasurementResult WriteLatencyRngTest2();
+
   // SPI Memory
 
   void SetWriteEnable();
