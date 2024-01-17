@@ -85,3 +85,8 @@ void CKernel::MemWrite(u32 adr, u8 value) {
   }
   // Only needed for WRSR: ResetWriteEnable();
 }
+
+MeasurementResult CKernel::MemWriteAndPoll(u64& cycles, const u32 adr, const u8 value, const int timeout) {
+  MemWrite(adr, value);
+  return WIPPollingCycles(cycles, timeout);
+}

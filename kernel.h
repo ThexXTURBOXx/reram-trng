@@ -57,11 +57,18 @@ public:
 
   void IndicateStop(MeasurementResult);
 
+  MeasurementResult RandomWriteLatency(u64& write_latency, int addr, int num1, int num2, int timeout = -1);
+
   MeasurementResult RandomWriteLatency(u64& write_latency, int timeout = -1);
 
   MeasurementResult WriteLatencyRandomBit(bool& bit, int timeout = -1);
 
   MeasurementResult ExtractSingleBit(bool& bit, int& totalGenerated, int tries = -1, int timeout = -1);
+
+  /**
+   * WARNING! THIS PERMANENTLY DAMAGES THE GIVEN CELL. USE CAREFULLY!
+   */
+  MeasurementResult BurnOut(int addr, int writes = 200000, int timeout = -1);
 
   MeasurementResult WriteLatencyRngTest();
 
@@ -80,6 +87,8 @@ public:
   MeasurementResult WIPPollingCycles(u64& cycles, int timeout = -1);
 
   void MemWrite(u32 adr, u8 value);
+
+  MeasurementResult MemWriteAndPoll(u64& cycles, u32 adr, u8 value, int timeout = -1);
 
 private:
   // do not change this order

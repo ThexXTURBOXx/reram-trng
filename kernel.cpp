@@ -104,6 +104,16 @@ void CKernel::IndicateStop(const MeasurementResult result) {
   }
 }
 
+MeasurementResult CKernel::RandomWriteLatency(u64& write_latency, const int addr, const int num1, const int num2,
+                                              const int timeout) {
+  // Write first value
+  const MeasurementResult result = MemWriteAndPoll(write_latency, addr, num1, timeout);
+  if (result != Okay) return result;
+
+  // Overwrite value; write_latency should be rather random now
+  return MemWriteAndPoll(write_latency, addr, num2, timeout);
+}
+
 MeasurementResult CKernel::RandomWriteLatency(u64& write_latency, const int timeout) {
   // These could also be fixed
 
@@ -117,18 +127,7 @@ MeasurementResult CKernel::RandomWriteLatency(u64& write_latency, const int time
   const int num1 = static_cast<int>(genrand_range(0, 256));
   const int num2 = static_cast<int>(genrand_range(0, 256));
 
-  // Write first value
-  MemWrite(addr, num1);
-
-  // Wait until the WIP bit is clear
-  const MeasurementResult result = WIPPollingCycles(write_latency, timeout);
-  if (result != Okay) return result;
-
-  // Overwrite value
-  MemWrite(addr, num2);
-
-  // write_latency should be rather random now
-  return WIPPollingCycles(write_latency, timeout);
+  return RandomWriteLatency(write_latency, addr, num1, num2, timeout);
 }
 
 MeasurementResult CKernel::WriteLatencyRandomBit(bool& bit, const int timeout) {
@@ -154,6 +153,15 @@ MeasurementResult CKernel::ExtractSingleBit(bool& bit, int& totalGenerated, int 
     }
   }
   return FailedTotally;
+}
+
+MeasurementResult CKernel::BurnOut(const int addr, const int writes, const int timeout) {
+  u64 temp;
+  for (int i = 0; i < writes; ++i) {
+    const MeasurementResult result = MemWriteAndPoll(temp, addr, genrand_range(0, 256), timeout);
+    if (result != Okay) return result;
+  }
+  return Okay;
 }
 
 MeasurementResult CKernel::WriteLatencyRngTest() {
