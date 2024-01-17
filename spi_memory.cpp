@@ -86,6 +86,33 @@ void CKernel::MemWrite(u32 adr, u8 value) {
   // Only needed for WRSR: ResetWriteEnable();
 }
 
+u8 CKernel::MemRead(u32 adr) {
+#if MEM_ADR_SEND == 2
+  u8 write_data[] = {
+    ReRAM_READ,
+    static_cast<u8>(adr >> 8 & 0xFF),
+    static_cast<u8>(adr >> 0 & 0xFF),
+    0
+  };
+#elif MEM_ADR_SEND == 3
+  u8 write_data[] = {
+    ReRAM_READ,
+    static_cast<u8>(adr >> 16 & 0xFF),
+    static_cast<u8>(adr >> 8 & 0xFF),
+    static_cast<u8>(adr >> 0 & 0xFF),
+    0
+  };
+#endif
+  u8 read_data[1 + MEM_ADR_SEND + 1];
+
+  constexpr int len = sizeof(write_data);
+
+  if (m_SPIMaster.WriteRead(SPI_CHIP_SELECT, write_data, read_data, len) != len) {
+    CLogger::Get()->Write(FromKernel, LogPanic, "SPI write error");
+  }
+  return read_data[1 + MEM_ADR_SEND];
+}
+
 MeasurementResult CKernel::MemWriteAndPoll(u64& cycles, const u32 adr, const u8 value, const int timeout) {
   MemWrite(adr, value);
   return WIPPollingCycles(cycles, timeout);

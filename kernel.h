@@ -90,6 +90,8 @@ public:
 
   void MemWrite(u32 adr, u8 value);
 
+  u8 MemRead(u32 adr);
+
   MeasurementResult MemWriteAndPoll(u64& cycles, u32 adr, u8 value, int timeout = -1);
 
 private:
