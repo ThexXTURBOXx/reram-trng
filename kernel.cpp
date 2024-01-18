@@ -495,5 +495,7 @@ MeasurementResult CKernel::BurnOutCells() {
     m_Logger.Write(FromKernel, LogNotice, "Cell %d burnt out", addr);
   }
 
+  m_Logger.Write(FromKernel, LogNotice, "Burn out process complete");
+
   return result;
 }
