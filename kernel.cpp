@@ -50,7 +50,7 @@ bool CKernel::Initialize() {
 
 TShutdownMode CKernel::Run() {
   m_Logger.Write(FromKernel, LogNotice, "Compile time: " __DATE__ " " __TIME__);
-  m_Logger.Write(FromKernel, LogNotice, "Memory: %s, SPI Frequency: %lld", MEM_NAME, SPI_FREQ);
+  m_Logger.Write(FromKernel, LogNotice, "Memory: %s, SPI Frequency: %lld Hz", MEM_NAME, SPI_FREQ);
 
   // Do dummy measurement
   int raw = 0;
@@ -318,26 +318,52 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   constexpr u8 num2s[] = {0xff, 0x00, 0x55, 0xaa, 0x73, 0x36, 0x29, 0x9f, 0x1b, 0xd8};
   constexpr int bytes = sizeof(num1s) / sizeof(u8);
 
+#if MEM_CAN_BURN_OUT
   constexpr int burnt1[] = {1, 9022, 26978, 44054, 60772};
-  constexpr int sane1[] = {3609, 17625, 29463, 48071, 58244};
   constexpr int burntAmount1 = sizeof(burnt1) / sizeof(int);
-  constexpr int saneAmount1 = sizeof(sane1) / sizeof(int);
-
   constexpr int burnt2[] = {6, 10990, 31987, 54833, 64198};
-  constexpr int sane2[] = {7541, 24251, 36203, 49382, 60456};
   constexpr int burntAmount2 = sizeof(burnt2) / sizeof(int);
+#endif
+
+  constexpr int sane1[] = {3609, 17625, 29463, 48071, 58244};
+  constexpr int saneAmount1 = sizeof(sane1) / sizeof(int);
+  constexpr int sane2[] = {7541, 24251, 36203, 49382, 60456};
   constexpr int saneAmount2 = sizeof(sane2) / sizeof(int);
 
-  auto burntTimes1 = new u64[burntAmount1 * bytes * tries1];
-  auto saneTimes1 = new u64[saneAmount1 * bytes * tries1];
-  auto burntTimes2 = new u64[burntAmount2 * 256 * 256 * tries2];
-  auto saneTimes2 = new u64[saneAmount2 * 256 * 256 * tries2];
+#if MEM_CAN_BURN_OUT
+  const auto burntTimes1 = new u64[burntAmount1 * bytes * tries1];
+  const auto burntTimes2 = new u64[burntAmount2 * 256 * 256 * tries2];
+#endif
+  const auto saneTimes1 = new u64[saneAmount1 * bytes * tries1];
+  const auto saneTimes2 = new u64[saneAmount2 * 256 * 256 * tries2];
 
+#if MEM_CAN_BURN_OUT
+  bool burntOut;
+  for (const int addr : burnt1) {
+    result = IsBurntOut(burntOut, addr);
+    if (result != Okay) return result;
+    if (!burntOut) {
+      result = BurnOut(addr);
+      if (result != Okay) return result;
+    }
+  }
+  for (const int addr : burnt2) {
+    result = IsBurntOut(burntOut, addr);
+    if (result != Okay) return result;
+    if (!burntOut) {
+      result = BurnOut(addr);
+      if (result != Okay) return result;
+    }
+  }
+#endif
+
+  int idx;
   u64 latency;
   unsigned nBytesWritten;
   CString Msg;
 
-  int idx = 0;
+#if MEM_CAN_BURN_OUT
+  idx = 0;
   for (const int addr : burnt1) {
     for (int j = 0; j < bytes; ++j) {
       for (int k = 0; k < tries1; ++k) {
@@ -347,6 +373,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
     }
   }
   m_Logger.Write(FromKernel, LogNotice, "Burnt done");
+#endif
 
   idx = 0;
   for (const int addr : sane1) {
@@ -359,6 +386,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   }
   m_Logger.Write(FromKernel, LogNotice, "Sane done");
 
+#if MEM_CAN_BURN_OUT
   idx = 0;
   for (const int addr : burnt2) {
     for (int num1 = 0; num1 < 256; ++num1) {
@@ -371,6 +399,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
     }
   }
   m_Logger.Write(FromKernel, LogNotice, "Burnt full done");
+#endif
 
   idx = 0;
   for (const int addr : sane2) {
@@ -391,6 +420,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
     result = FailedTotally;
   }
 
+#if MEM_CAN_BURN_OUT
   idx = 0;
   for (const int addr : burnt1) {
     for (int j = 0; j < bytes; ++j) {
@@ -406,6 +436,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
     }
   }
   m_Logger.Write(FromKernel, LogNotice, "Burnt written");
+#endif
 
   idx = 0;
   for (const int addr : sane1) {
@@ -423,6 +454,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   }
   m_Logger.Write(FromKernel, LogNotice, "Sane written");
 
+#if MEM_CAN_BURN_OUT
   idx = 0;
   for (const int addr : burnt2) {
     for (int num1 = 0; num1 < 256; ++num1) {
@@ -438,6 +470,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
     }
   }
   m_Logger.Write(FromKernel, LogNotice, "Burnt full written");
+#endif
 
   idx = 0;
   for (const int addr : sane2) {
