@@ -70,7 +70,7 @@ public:
   /**
    * WARNING! THIS PERMANENTLY DAMAGES THE GIVEN CELL. USE CAREFULLY!
    */
-  MeasurementResult BurnOut(int addr, int writes = 200000, int timeout = -1);
+  MeasurementResult BurnOut(int addr, int checkInterval = 1000, int timeout = -1);
 
   MeasurementResult WriteLatencyRngTest();
 

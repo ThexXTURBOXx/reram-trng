@@ -173,13 +173,20 @@ MeasurementResult CKernel::IsBurntOut(bool& burntOut, const int addr, const int 
   return Okay;
 }
 
-MeasurementResult CKernel::BurnOut(const int addr, const int writes, const int timeout) {
+MeasurementResult CKernel::BurnOut(const int addr, const int checkInterval, const int timeout) {
   u64 temp;
-  for (int i = 0; i < writes; ++i) {
-    const MeasurementResult result = MemWriteAndPoll(temp, addr, m_Random.GetNumber() % 256, timeout);
+  MeasurementResult result;
+  bool burntOut;
+  for (int i = 0; ; ++i) {
+    result = MemWriteAndPoll(temp, addr, m_Random.GetNumber() % 256, timeout);
     if (result != Okay) return result;
+    if (i % checkInterval == 0) {
+      result = IsBurntOut(burntOut, addr, 10, timeout);
+      if (result != Okay) return result;
+      if (burntOut) break;
+    }
   }
-  return Okay;
+  return result;
 }
 
 MeasurementResult CKernel::WriteLatencyRngTest() {
@@ -219,14 +226,14 @@ MeasurementResult CKernel::WriteLatencyRngTest() {
         newUptime = CTimer::GetClockTicks64();
         debugTimes[idxDebug] = newUptime - blockStart;
         debugBits[idxDebug] = totalGenerated - blockGenerated;
-        CLogger::Get()->Write(FromKernel, LogNotice, "%lld µs, %d",
-                              debugTimes[idxDebug], debugBits[idxDebug]);
+        m_Logger.Write(FromKernel, LogNotice, "%lld µs, %d",
+                       debugTimes[idxDebug], debugBits[idxDebug]);
         blockStart = newUptime;
         ++idxDebug;
       }
       blockGenerated = totalGenerated;
     }
-    //CLogger::Get()->Write(FromMeasure, LogNotice, "%d", bit1);
+    //m_Logger.Write(FromMeasure, LogNotice, "%d", bit1);
     generated[totalToGenerate - toGenerate] = static_cast<char>('0' + bit);
     --toGenerate;
   }
@@ -234,11 +241,11 @@ MeasurementResult CKernel::WriteLatencyRngTest() {
   newUptime = CTimer::GetClockTicks64();
   debugTimes[idxDebug] = newUptime - blockStart;
   debugBits[idxDebug] = totalGenerated - blockGenerated;
-  CLogger::Get()->Write(FromKernel, LogNotice, "%lld µs, %d",
-                        debugTimes[idxDebug], debugBits[idxDebug]);
+  m_Logger.Write(FromKernel, LogNotice, "%lld µs, %d",
+                 debugTimes[idxDebug], debugBits[idxDebug]);
 
-  CLogger::Get()->Write(FromKernel, LogNotice, "Time needed: %lld µs", newUptime - start);
-  CLogger::Get()->Write(FromKernel, LogNotice, "Total bits generated: %d\n", totalGenerated);
+  m_Logger.Write(FromKernel, LogNotice, "Time needed: %lld µs", newUptime - start);
+  m_Logger.Write(FromKernel, LogNotice, "Total bits generated: %d\n", totalGenerated);
 
   FRESULT Result = f_open(&file, fileNameBits, FA_WRITE | FA_CREATE_ALWAYS);
   if (Result != FR_OK) {
@@ -327,10 +334,10 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   u64 saneTimes2[saneAmount2 * 256 * 256 * tries2];
 
   u64 latency;
-  int idx = 0;
   unsigned nBytesWritten;
   CString Msg;
 
+  int idx = 0;
   for (const int addr : burnt1) {
     for (int j = 0; j < bytes; ++j) {
       for (int k = 0; k < tries1; ++k) {
@@ -339,7 +346,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
       }
     }
   }
-  CLogger::Get()->Write(FromKernel, LogNotice, "Burnt done");
+  m_Logger.Write(FromKernel, LogNotice, "Burnt done");
 
   idx = 0;
   for (const int addr : sane1) {
@@ -350,7 +357,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
       }
     }
   }
-  CLogger::Get()->Write(FromKernel, LogNotice, "Sane done");
+  m_Logger.Write(FromKernel, LogNotice, "Sane done");
 
   idx = 0;
   for (const int addr : burnt2) {
@@ -363,7 +370,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
       }
     }
   }
-  CLogger::Get()->Write(FromKernel, LogNotice, "Burnt full done");
+  m_Logger.Write(FromKernel, LogNotice, "Burnt full done");
 
   idx = 0;
   for (const int addr : sane2) {
@@ -376,7 +383,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
       }
     }
   }
-  CLogger::Get()->Write(FromKernel, LogNotice, "Sane full done");
+  m_Logger.Write(FromKernel, LogNotice, "Sane full done");
 
   FRESULT Result = f_open(&file, fileName, FA_WRITE | FA_CREATE_ALWAYS);
   if (Result != FR_OK) {
@@ -398,7 +405,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
       }
     }
   }
-  CLogger::Get()->Write(FromKernel, LogNotice, "Burnt written");
+  m_Logger.Write(FromKernel, LogNotice, "Burnt written");
 
   idx = 0;
   for (const int addr : sane1) {
@@ -414,7 +421,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
       }
     }
   }
-  CLogger::Get()->Write(FromKernel, LogNotice, "Sane written");
+  m_Logger.Write(FromKernel, LogNotice, "Sane written");
 
   idx = 0;
   for (const int addr : burnt2) {
@@ -430,7 +437,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
       }
     }
   }
-  CLogger::Get()->Write(FromKernel, LogNotice, "Burnt full written");
+  m_Logger.Write(FromKernel, LogNotice, "Burnt full written");
 
   idx = 0;
   for (const int addr : sane2) {
@@ -446,7 +453,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
       }
     }
   }
-  CLogger::Get()->Write(FromKernel, LogNotice, "Sane full written");
+  m_Logger.Write(FromKernel, LogNotice, "Sane full written");
 
   Result = f_close(&file);
   if (Result == FR_OK) {
@@ -460,7 +467,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
 }
 
 MeasurementResult CKernel::BurnOutCells() {
-  MeasurementResult result;
+  MeasurementResult result = Okay;
 
   // Same cells as in WriteLatencyRngTest2
   constexpr int sane[] = {3609, 17625, 29463, 48071, 58244, 7541, 24251, 36203, 49382, 60456};
@@ -472,24 +479,21 @@ MeasurementResult CKernel::BurnOutCells() {
     result = IsBurntOut(burntOut, addr);
     if (result != Okay) return result;
     if (burntOut) {
-      CLogger::Get()->Write(FromKernel, LogNotice, "Cell %d burnt out, not good!", addr);
+      m_Logger.Write(FromKernel, LogNotice, "Cell %d burnt out, not good!", addr);
     } else {
-      CLogger::Get()->Write(FromKernel, LogNotice, "Cell %d sane", addr);
+      m_Logger.Write(FromKernel, LogNotice, "Cell %d sane", addr);
     }
   }
 
   for (const int addr : burnt) {
-    do {
-      result = IsBurntOut(burntOut, addr);
+    result = IsBurntOut(burntOut, addr);
+    if (result != Okay) return result;
+    if (!burntOut) {
+      result = BurnOut(addr);
       if (result != Okay) return result;
-      if (!burntOut) {
-        CLogger::Get()->Write(FromKernel, LogNotice, "Cell %d still sane", addr);
-        result = BurnOut(addr);
-        if (result != Okay) return result;
-      }
-    } while (!burntOut);
-    CLogger::Get()->Write(FromKernel, LogNotice, "Cell %d burnt out", addr);
+    }
+    m_Logger.Write(FromKernel, LogNotice, "Cell %d burnt out", addr);
   }
 
-  return Okay;
+  return result;
 }
