@@ -328,10 +328,10 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   constexpr int burntAmount2 = sizeof(burnt2) / sizeof(int);
   constexpr int saneAmount2 = sizeof(sane2) / sizeof(int);
 
-  u64 burntTimes1[burntAmount1 * bytes * tries1];
-  u64 saneTimes1[saneAmount1 * bytes * tries1];
-  u64 burntTimes2[burntAmount2 * 256 * 256 * tries2];
-  u64 saneTimes2[saneAmount2 * 256 * 256 * tries2];
+  auto burntTimes1 = new u64[burntAmount1 * bytes * tries1];
+  auto saneTimes1 = new u64[saneAmount1 * bytes * tries1];
+  auto burntTimes2 = new u64[burntAmount2 * 256 * 256 * tries2];
+  auto saneTimes2 = new u64[saneAmount2 * 256 * 256 * tries2];
 
   u64 latency;
   unsigned nBytesWritten;
