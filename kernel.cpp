@@ -459,12 +459,14 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   for (const int addr : burnt2) {
     for (int num1 = 0; num1 < 256; ++num1) {
       for (int num2 = 0; num2 < 256; ++num2) {
-        Msg.Format("B,%d,%d,%d,%lld\n", addr, num1, num2, burntTimes2[idx++]);
-        Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
-        if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
-          m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
-          result = FailedPartially;
-          break;
+        for (int k = 0; k < tries2; ++k) {
+          Msg.Format("B,%d,%d,%d,%lld\n", addr, num1, num2, burntTimes2[idx++]);
+          Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
+          if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
+            m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
+            result = FailedPartially;
+            break;
+          }
         }
       }
     }
@@ -476,12 +478,14 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   for (const int addr : sane2) {
     for (int num1 = 0; num1 < 256; ++num1) {
       for (int num2 = 0; num2 < 256; ++num2) {
-        Msg.Format("S,%d,%d,%d,%lld\n", addr, num1, num2, saneTimes2[idx++]);
-        Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
-        if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
-          m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
-          result = FailedPartially;
-          break;
+        for (int k = 0; k < tries2; ++k) {
+          Msg.Format("S,%d,%d,%d,%lld\n", addr, num1, num2, saneTimes2[idx++]);
+          Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
+          if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
+            m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
+            result = FailedPartially;
+            break;
+          }
         }
       }
     }
