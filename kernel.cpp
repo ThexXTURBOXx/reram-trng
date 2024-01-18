@@ -72,8 +72,8 @@ TShutdownMode CKernel::Run() {
   } else {
     // Do measurements only if successful
     //result = WriteLatencyRngTest();
-    //result = WriteLatencyRngTest2();
-    result = BurnOutCells();
+    result = WriteLatencyRngTest2();
+    //result = BurnOutCells();
 
     IndicateStop(result);
   }
