@@ -395,7 +395,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   for (const int addr : burnt1) {
     for (int j = 0; j < bytes; ++j) {
       for (int k = 0; k < tries1; ++k) {
-        Msg.Format("B,%d,%d,%d,%d\n", addr, num1s[j], num2s[j], burntTimes1[idx++]);
+        Msg.Format("B,%d,%d,%d,%lld\n", addr, num1s[j], num2s[j], burntTimes1[idx++]);
         Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
         if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
           m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
@@ -411,7 +411,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   for (const int addr : sane1) {
     for (int j = 0; j < bytes; ++j) {
       for (int k = 0; k < tries1; ++k) {
-        Msg.Format("S,%d,%d,%d,%d\n", addr, num1s[j], num2s[j], saneTimes1[idx++]);
+        Msg.Format("S,%d,%d,%d,%lld\n", addr, num1s[j], num2s[j], saneTimes1[idx++]);
         Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
         if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
           m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
@@ -427,7 +427,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   for (const int addr : burnt2) {
     for (int num1 = 0; num1 < 256; ++num1) {
       for (int num2 = 0; num2 < 256; ++num2) {
-        Msg.Format("B,%d,%d,%d,%d\n", addr, num1, num2, burntTimes2[idx++]);
+        Msg.Format("B,%d,%d,%d,%lld\n", addr, num1, num2, burntTimes2[idx++]);
         Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
         if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
           m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
@@ -443,7 +443,7 @@ MeasurementResult CKernel::WriteLatencyRngTest2() {
   for (const int addr : sane2) {
     for (int num1 = 0; num1 < 256; ++num1) {
       for (int num2 = 0; num2 < 256; ++num2) {
-        Msg.Format("S,%d,%d,%d,%d\n", addr, num1, num2, saneTimes2[idx++]);
+        Msg.Format("S,%d,%d,%d,%lld\n", addr, num1, num2, saneTimes2[idx++]);
         Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
         if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
           m_Logger.Write(FromKernel, LogError, "Write error (%d)", Result);
