@@ -88,7 +88,7 @@ TShutdownMode CKernel::Run() {
   // Read selected mode
   const char* cMode = Properties.GetString("mode", "trng");
   const CString mode(cMode);
-  m_Logger.Write(FromKernel, LogNotice, "Selected mode: %s", mode);
+  m_Logger.Write(FromKernel, LogNotice, "Selected mode: %s", cMode);
 
   // Run selected mode
   if (mode.Compare("demo") == 0)
