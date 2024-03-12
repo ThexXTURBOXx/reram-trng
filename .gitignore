@@ -3,7 +3,7 @@ build/
 
 boot/*
 !src/boot/*
-!boot/.gitkeep
+!boot/params.properties
 
 .idea/
 

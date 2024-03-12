@@ -2,9 +2,12 @@
 // kernel.cpp
 //
 #include "kernel.h"
+
 #include "mt19937ar.h"
+#include <Properties/propertiesfatfsfile.h>
 
 #define DRIVE        "SD:"
+#define PARAMFILE    "/params.properties"
 
 CKernel::CKernel()
   : m_Timer(&m_Interrupt),
@@ -56,28 +59,49 @@ TShutdownMode CKernel::Run() {
   int raw = 0;
   bool bit;
   MeasurementResult result = ExtractSingleBit(bit, raw, 1000, 1000);
-  if (result == Okay) {
-    m_Logger.Write(FromKernel, LogNotice, "Successfully generated bit %d with %d raw bits!", bit, raw);
-    m_ActLED.Blink(5, 100, 100);
-  } else {
+  if (result != Okay) {
     m_Logger.Write(FromKernel, LogNotice, "Failed to generate single bit... Shutting down...");
     IndicateStop(result);
     return ShutdownNone;
   }
 
+  // Successfully generated single bit
+  m_Logger.Write(FromKernel, LogNotice, "Successfully generated bit %d with %d raw bits!", bit, raw);
+  m_ActLED.Blink(5, 100, 100);
+
   // Mount file system
   if (f_mount(&m_FileSystem, DRIVE, 1) != FR_OK) {
     m_Logger.Write(FromKernel, LogPanic, "Cannot mount drive: %s", DRIVE);
     IndicateStop(FailedTotally);
-  } else {
-    // Do measurements only if successful
-    //result = WriteLatencyRngTest();
-    result = WriteLatencyRngTest2();
-    //result = BurnOutCells();
-
-    IndicateStop(result);
+    return ShutdownNone;
   }
 
+  // Read param file
+  CPropertiesFatFsFile Properties(DRIVE PARAMFILE, &m_FileSystem);
+  if (!Properties.Load()) {
+    m_Logger.Write(FromKernel, LogPanic, "Error loading properties from %s (line %u)",
+                   PARAMFILE, Properties.GetErrorLine());
+    IndicateStop(FailedTotally);
+    return ShutdownNone;
+  }
+
+  // Read selected mode
+  const char* cMode = Properties.GetString("mode", "trng");
+  const CString mode(cMode);
+  m_Logger.Write(FromKernel, LogNotice, "Selected mode: %s", mode);
+
+  // Run selected mode
+  if (mode.Compare("demo") == 0)
+    result = DemoMode();
+  else if (mode.Compare("raw") == 0)
+    result = WriteLatencyRngTest2();
+  else if (mode.Compare("burnout") == 0)
+    result = BurnOutCells();
+  else
+    result = WriteLatencyRngTest();
+
+  // Shutdown
+  IndicateStop(result);
   return ShutdownNone;
 }
 

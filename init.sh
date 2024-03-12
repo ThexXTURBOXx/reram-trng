@@ -9,6 +9,9 @@ popd
 pushd addon/fatfs
 make -j4
 popd
+pushd addon/Properties
+make -j4
+popd
 pushd addon/SDCard
 make -j4
 popd
