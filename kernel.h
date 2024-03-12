@@ -72,6 +72,8 @@ public:
    */
   MeasurementResult BurnOut(int addr, int checkInterval = 1000, int timeout = -1);
 
+  MeasurementResult DemoMode();
+
   MeasurementResult WriteLatencyRngTest();
 
   MeasurementResult WriteLatencyRngTest2();

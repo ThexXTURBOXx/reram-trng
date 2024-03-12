@@ -189,6 +189,18 @@ MeasurementResult CKernel::BurnOut(const int addr, const int checkInterval, cons
   return result;
 }
 
+MeasurementResult CKernel::DemoMode() {
+  MeasurementResult result = Okay;
+
+  bool bit;
+  while (result == Okay) {
+    result = WriteLatencyRandomBit(bit);
+    m_Timer.MsDelay(5 * 1000);
+  }
+
+  return result;
+}
+
 MeasurementResult CKernel::WriteLatencyRngTest() {
   MeasurementResult result = Okay;
 
