@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/cross-rs/aarch64-unknown-linux-gnu:main
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Install wget
+      run: apt install -y wget
+
+    - name: Initialize circle
+      run: ./init.sh
+
+    - name: Compile kernels
+      run: |
+           ./compile.sh 1 780000 kernel8-adesto-512
+           ./compile.sh 1 1560000 kernel8-adesto-256
+           ./compile.sh 1 3120000 kernel8-adesto-128
+           ./compile.sh 1 6240000 kernel8-adesto-64
+           ./compile.sh 2 780000 kernel8-fujitsu-512
+           ./compile.sh 2 1560000 kernel8-fujitsu-256
+           ./compile.sh 2 3120000 kernel8-fujitsu-128
+           ./compile.sh 2 6240000 kernel8-fujitsu-64
+           ./compile.sh 2 12480000 kernel8-fujitsu-32
+
+    - name: Upload boot files
+      uses: actions/upload-artifact@v4
+      with:
+        name: Boot Files
+        path: boot/*
