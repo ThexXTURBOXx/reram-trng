@@ -23,7 +23,7 @@ The Supervisor RPi is not really necessary anymore since the ReRAM RPi is able t
 
 1. Just download the [latest workflow build](https://nightly.link/ThexXTURBOXx/reram-trng/workflows/build/circle/Boot%20Files.zip)
 
-### From UPA FIM GitLab (not publicly accessible)
+### From UPA FIM GitLab (the same, just a mirror)
 
 1. Go to the [latest pipeline build](https://git.fim.uni-passau.de/mexis/rpi_measurement_kernel/-/pipelines/latest)
 1. Open its build log
