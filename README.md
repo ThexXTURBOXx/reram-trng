@@ -1,6 +1,6 @@
 # Raspberry Pi Measurement Kernel
 
-Bare minimum Kernel for the Raspberry Pi to examine memory chips via SPI
+Bare minimum Kernel for the Raspberry Pi to examine memory chips via SPI. Currently being used as a ReRAM-based TRNG.
 
 ## Setup
 
