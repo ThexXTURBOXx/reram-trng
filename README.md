@@ -7,7 +7,7 @@ Bare minimum Kernel for the Raspberry Pi to examine memory chips via SPI
 See [the setup documentation](doc/Setup.md)!
 
 
-# Credits
+## Credits
 
  - `boot/` is the target directory for all the files that will need to be copied to a SD card. This folder will contain files which are taken directly from [raspberrypi/firmware](https://github.com/raspberrypi/firmware)
  - `circle/` is a submodule that includes [Rene Stange](https://github.com/rsta2)'s [circle](https://github.com/rsta2/circle) framework, which provides all the bare metal driver implementations we need
