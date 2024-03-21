@@ -4,8 +4,12 @@
 - `ReRAM`: Resistive Random Access Memory
 - `PCB`: Printed Circuit Board
 - `TRNG`: True Random Number Generator
-- `Supervisor RPi`: The Raspberry Pi which supervises the progress (the one with a `1` in its ID)
+- `Supervisor RPi` (*optional*): The Raspberry Pi which supervises the progress (the one with a `1` in its ID)
 - `ReRAM RPi`: The RPi which is connected to the ReRAM PCB (the one with a `2` in its ID)
+
+# On the Supervisor RPi
+
+The Supervisor RPi is not really necessary anymore since the ReRAM RPi is able to write any results directly to a file on the SD card (since commit 67cc0804c4a468e16ec96f596f74eb685c565452, the big `circle` rewrite). However, it is still useful as one can watch the progress through debug statements scattered throughout the code.
 
 # Wiring
 
@@ -15,15 +19,21 @@
 
 ## Use a Pre-built Kernel
 
+### From GitHub
+
+1. Just download the [latest workflow build](https://nightly.link/ThexXTURBOXx/reram-trng/workflows/build/circle/Boot%20Files.zip)
+
+### From UPA FIM GitLab (not publicly accessible)
+
 1. Go to the [latest pipeline build](https://git.fim.uni-passau.de/mexis/rpi_measurement_kernel/-/pipelines/latest)
 1. Open its build log
 1. On the right sidebar, click on `Download` under `Job artifacts`
 1. The zip file contains all the relevant files. Be sure to rename the kernel that you want to deploy to just `kernel8.img`!
 
-## Doing It Yourself
+## Compiling It Yourself
 
 1. Clone this Git repository (remember to also initialise the `circle` submodule!)
-1. Install either a cross-compiling `gcc` instance (`gcc-aarch64-linux-gnu`) or the native `gcc` if you are already on the ARMv8/AARCH64v8 platform
+1. Install either a cross-compiling `gcc` instance ([`gcc-aarch64-linux-gnu`](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)) or the native `gcc` if you are already on the ARMv8/AARCH64v8 platform
 1. Install `make` and `wget`
 1. Run `./init.sh`
 1. Run `./compile.sh` with your desired parameters
@@ -42,7 +52,7 @@
 1. Put the SD card in RPi with the `2` in its ID
 1. **Do not turn it on yet**
 
-# Supervisor RPi Setup
+# Supervisor RPi Setup (optional, but has benefits)
 
 ## Firmware Setup
 
