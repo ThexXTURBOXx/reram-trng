@@ -16,7 +16,9 @@ jobs:
         submodules: recursive
 
     - name: Install wget
-      run: apt install -y wget
+      run: |
+           apt update
+           apt install -y wget
 
     - name: Initialize circle
       run: ./init.sh
