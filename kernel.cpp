@@ -97,6 +97,8 @@ TShutdownMode CKernel::Run() {
     result = WriteLatencyRngTest2();
   else if (mode.Compare("burnout") == 0)
     result = BurnOutCells();
+  else if (mode.Compare("rawtrng") == 0)
+    result = WriteLatencyRngTest(true);
   else
     result = WriteLatencyRngTest();
 
@@ -225,7 +227,7 @@ MeasurementResult CKernel::DemoMode() {
   return result;
 }
 
-MeasurementResult CKernel::WriteLatencyRngTest() {
+MeasurementResult CKernel::WriteLatencyRngTest(const bool printRaw) {
   MeasurementResult result = Okay;
 
 #define FILENAME_BITS MEM_NAME_SIMPLE "_%d_bits.log"
@@ -241,7 +243,7 @@ MeasurementResult CKernel::WriteLatencyRngTest() {
   int idxDebug = 0;
   u64 newUptime;
 
-  constexpr int totalToGenerate = 500000;
+  const int totalToGenerate = printRaw ? 2000000 : 500000;
   constexpr int debugSteps = 10000;
 
   char generated[totalToGenerate];
@@ -255,7 +257,12 @@ MeasurementResult CKernel::WriteLatencyRngTest() {
   u64 blockStart = start;
   int blockGenerated = toGenerate;
   while (toGenerate > 0) {
-    ExtractSingleBit(bit, totalGenerated);
+    if (printRaw) {
+      WriteLatencyRandomBit(bit);
+      ++totalGenerated;
+    } else {
+      ExtractSingleBit(bit, totalGenerated);
+    }
     // For more debug information:
     if (toGenerate % debugSteps == 0) {
       if (toGenerate < totalToGenerate) {

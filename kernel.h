@@ -74,7 +74,7 @@ public:
 
   MeasurementResult DemoMode();
 
-  MeasurementResult WriteLatencyRngTest();
+  MeasurementResult WriteLatencyRngTest(bool printRaw = false);
 
   MeasurementResult WriteLatencyRngTest2();
 
