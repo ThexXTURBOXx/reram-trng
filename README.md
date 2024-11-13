@@ -6,15 +6,27 @@ Bare minimum Kernel for the Raspberry Pi to examine memory chips via SPI. Curren
 
 See [the setup documentation](doc/Setup.md)!
 
-<!--# Citing
+## Citing
 
 The BibTeX snippet below is the recommended way to cite this project.
 
 Further research on the TRNG itself has been made in several works. Many of them can be found [here](https://nmexis.me/#research-and-publications) (along with [BibTeX code](https://femtopedia.de/research/) to cite them).
 
 ```BibTeX
-TODO
-```-->
+@inproceedings{arul2024investigationcommercialshelf,
+  doi          = {10.1109/DSD64264.2024.00014},
+  url          = {https://doi.org/10.1109/DSD64264.2024.00014},
+  title        = {{Investigation Of Commercial Off-The-Shelf ReRAM Modules For Use As Runtime-Accessible TRNG}},
+  author       = {Arul, Tolga and Mexis, Nico and George, Aleena Elsa and Frank, Florian and Anagnostopoulos, Nikolaos Athanasios and Katzenbeisser, Stefan},
+  year         = 2024,
+  month        = aug,
+  booktitle    = {2024 27th Euromicro Conference on Digital System Design (DSD)},
+  publisher    = {IEEE},
+  address      = {Paris, France},
+  pages        = {33--42},
+  keywords     = {Temperature distribution;Protocols;Digital systems;Resistive RAM;NIST;Throughput;Entropy;Generators;Internet of Things;Security;Commercial Off-The-Shelf (COTS);Resistive Random Access Memory (ReRAM);runtime-accessible;True Random-Number Generator (TRNG)}
+}
+```
 
 ## Credits
 
