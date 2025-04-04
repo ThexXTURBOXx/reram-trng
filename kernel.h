@@ -63,7 +63,7 @@ public:
 
   MeasurementResult WriteLatencyRandomBit(bool& bit, int timeout = -1);
 
-  MeasurementResult ExtractSingleBit(bool& bit, int& totalGenerated, int tries = -1, int timeout = -1);
+  MeasurementResult ExtractSingleBit(bool& bit, u32& totalGenerated, int tries = -1, int timeout = -1);
 
   MeasurementResult IsBurntOut(bool& burntOut, int addr, int writes = 10, int timeout = -1);
 

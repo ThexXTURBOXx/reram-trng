@@ -56,7 +56,7 @@ TShutdownMode CKernel::Run() {
   m_Logger.Write(FromKernel, LogNotice, "Memory: %s, SPI Frequency: %lld Hz", MEM_NAME, SPI_FREQ);
 
   // Do dummy measurement
-  int raw = 0;
+  u32 raw = 0;
   bool bit;
   MeasurementResult result = ExtractSingleBit(bit, raw, 1000, 1000);
   if (result != Okay) {
@@ -167,7 +167,7 @@ MeasurementResult CKernel::WriteLatencyRandomBit(bool& bit, const int timeout) {
   return result;
 }
 
-MeasurementResult CKernel::ExtractSingleBit(bool& bit, int& totalGenerated, int tries, const int timeout) {
+MeasurementResult CKernel::ExtractSingleBit(bool& bit, u32& totalGenerated, int tries, const int timeout) {
   bool bit1, bit2;
   while (tries < 0 || tries-- > 0) {
     // Very basic implementation of von Neumann extractor
@@ -240,22 +240,22 @@ MeasurementResult CKernel::WriteLatencyRngTest(const bool printRaw) {
   m_Logger.Write(FromKernel, LogNotice, "Choosing debug file %s", cFileNameDebug);
 
   FIL file;
-  int idxDebug = 0;
+  u32 idxDebug = 0;
   u64 newUptime;
 
-  const int totalToGenerate = printRaw ? 2000000 : 500000;
-  constexpr int debugSteps = 10000;
+  const u32 totalToGenerate = printRaw ? 2000000 : 500000;
+  constexpr u32 debugSteps = 10000;
 
   char generated[totalToGenerate];
   u64 debugTimes[totalToGenerate / debugSteps];
-  int debugBits[totalToGenerate / debugSteps];
+  u32 debugBits[totalToGenerate / debugSteps];
 
   bool bit;
-  int toGenerate = totalToGenerate;
-  int totalGenerated = 0;
+  u32 toGenerate = totalToGenerate;
+  u32 totalGenerated = 0;
   const u64 start = CTimer::GetClockTicks64();
   u64 blockStart = start;
-  int blockGenerated = toGenerate;
+  u32 blockGenerated = toGenerate;
   while (toGenerate > 0) {
     if (printRaw) {
       WriteLatencyRandomBit(bit);
@@ -315,7 +315,7 @@ MeasurementResult CKernel::WriteLatencyRngTest(const bool printRaw) {
     result = FailedPartially;
   }
   CString Msg;
-  for (int nDebug = 0; nDebug < totalToGenerate / debugSteps; ++nDebug) {
+  for (u32 nDebug = 0; nDebug < totalToGenerate / debugSteps; ++nDebug) {
     Msg.Format("%lld µs, %d\n", debugTimes[nDebug], debugBits[nDebug]);
     Result = f_write(&file, Msg, Msg.GetLength(), &nBytesWritten);
     if (Result != FR_OK || nBytesWritten != Msg.GetLength()) {
